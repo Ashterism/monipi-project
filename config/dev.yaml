@@ -1,0 +1,5 @@
+env_name: dev
+beat_frequency_seconds: 5
+paths:
+  data_dir: ./var
+  log_dir: ./var/log
