@@ -1,8 +1,10 @@
-import time
 import sys, os
 import logging, signal
 import yaml
 from datetime import datetime
+
+from monipi.sampler import heartbeat
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -14,16 +16,13 @@ logging.basicConfig(
 
 def main():
     config = load_config()
-    state_active = True
     beat_frequency = config["beat_frequency_seconds"]
 
     logging.info("App started")
 
-    while state_active:
-        try:
-            logging.info("Heartbeat")
-            time.sleep(beat_frequency)
-
+    while True:
+        try:    
+            heartbeat(beat_frequency)
         except KeyboardInterrupt:
             exit_gracefully("User stopped with keyboard")
 
@@ -42,7 +41,7 @@ def load_config():
             return yaml.safe_load(c)
 
 
-def exit_gracefully(exitmsg, signum=""):
+def exit_gracefully(exitmsg="no message provided", signum=""):
     logging.info(
         f"App exited - {exitmsg} {signum}",
     )
