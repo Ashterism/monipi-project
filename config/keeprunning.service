@@ -1,0 +1,14 @@
+[Unit]
+Description=Keep monipi alive and running, even after a crash or restart
+After=multi-user.target
+
+
+[Service]
+Type=simple
+RemainAfterExit=no
+ExecStart=/home/ash/monipi_project/.venv/bin/python3 -m monipi
+Restart=always
+
+
+[Install]
+WantedBy=multi-user.target
