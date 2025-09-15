@@ -17,3 +17,7 @@ sudo raspi-config
     enable I²C (for SCD30)
     enable Serial (for PMS5003).
 
+--
+Keep running (systemd)
+move it manually:
+sudo cp ~/monipi_project/config/keeprunning.service /etc/systemd/system/keeprunning.service
