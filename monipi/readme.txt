@@ -2,13 +2,14 @@
 
 Libraries used:
 
-(used .venv)
+(used .venv) - not on pi tho
 
 PyYAML  # to use yaml for config.yaml
 SCD30   # climate sensor
 PMS5003 # particulate matter sensor 
 
 pip install sensirion-i2c-scd30 pms5003
+pip install "sensirion-i2c-scd30[test]" (for testing via pytest on mac)
 
 https://sensirion.github.io/python-i2c-scd30/index.html
 
@@ -17,7 +18,7 @@ https://sensirion.github.io/python-i2c-scd30/index.html
 
 sudo raspi-config
     enable I²C (for SCD30)
-    enable Serial (for PMS5003).
+    enable Serial (for PMS5003).?
 
 --
 Keep running (systemd)

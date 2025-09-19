@@ -1,0 +1,42 @@
+# example code from sensor manufacturer (sensirion)
+# https://sensirion.github.io/python-i2c-scd30/execute-measurements.html#id1
+
+import argparse
+import time
+from sensirion_i2c_driver import LinuxI2cTransceiver, I2cConnection, CrcCalculator
+from sensirion_driver_adapters.i2c_adapter.i2c_channel import I2cChannel
+from sensirion_i2c_scd30.device import Scd30Device
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--i2c-port', '-p', default='/dev/i2c-1')
+args = parser.parse_args()
+
+with LinuxI2cTransceiver(args.i2c_port) as i2c_transceiver:
+    channel = I2cChannel(I2cConnection(i2c_transceiver),
+                         slave_address=0x61,
+                         crc=CrcCalculator(8, 0x31, 0xff, 0x0))
+    sensor = Scd30Device(channel)
+    try:
+        sensor.stop_periodic_measurement()
+        sensor.soft_reset()
+        time.sleep(2.0)
+    except BaseException:
+        ...
+    (major, minor
+     ) = sensor.read_firmware_version()
+    print(f"major: {major}; "
+          f"minor: {minor}; "
+          )
+    sensor.start_periodic_measurement(0)
+    for i in range(30):
+        try:
+            time.sleep(1.5)
+            (co2_concentration, temperature, humidity
+             ) = sensor.blocking_read_measurement_data()
+            print(f"co2_concentration: {co2_concentration}; "
+                  f"temperature: {temperature}; "
+                  f"humidity: {humidity}; "
+                  )
+        except BaseException:
+            continue
+    sensor.stop_periodic_measurement()
