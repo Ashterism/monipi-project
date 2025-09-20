@@ -1,5 +1,6 @@
 env_name: dev
-beat_frequency_seconds: 5
+beat_frequency_seconds: 60
+scd_frequency_seconds: 60
 paths:
   data_dir: ./var
   log_dir: ./var/log

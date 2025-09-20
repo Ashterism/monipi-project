@@ -3,9 +3,18 @@ import logging, signal
 import yaml
 from datetime import datetime
 
-from monipi.sampler import heartbeat
+from monipi.sampler import scd30_loop
 
+""" this checks if on mac or pi and determines which config file to use
 
+    then it calls the SCD30 sensor (sampler.py) and feeds in how many
+    times should sample on a loop.  
+"""
+
+times_to_loop = 30
+time_between_samples = 1.5
+
+# consider loguru instead?
 logging.basicConfig(
     level=logging.INFO,
     format="{asctime} - {levelname} - {message}",
@@ -17,12 +26,14 @@ logging.basicConfig(
 def main():
     config = load_config()
     beat_frequency = config["beat_frequency_seconds"]
+    scd_frequency_seconds = config["scd_frequency_seconds"]
 
     logging.info("App started")
 
     while True:
         try:    
-            heartbeat(beat_frequency)
+    #        heartbeat(beat_frequency)
+            scd30_loop(times_to_loop, time_between_samples)
         except KeyboardInterrupt:
             exit_gracefully("User stopped with keyboard")
 

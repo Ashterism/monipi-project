@@ -1,5 +1,6 @@
 env_name: prod
 beat_frequency_seconds: 60
+scd_frequency_seconds: 60
 paths:
   data_dir: /var/lib/monipi
   log_dir: /var/log/monipi
