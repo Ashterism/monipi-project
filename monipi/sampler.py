@@ -17,7 +17,7 @@ dm = Dataman()
     dataman class to read/write to the data to csv
 
     there is a dev mode so the code can be tested without the 
-    sensor connected
+    sensor connected (set to dev mode in config)
 """
 
 def scd30_get_samples(times_to_loop=5, time_between_samples=1, mode="dev"):
