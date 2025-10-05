@@ -9,6 +9,8 @@ from pathlib import Path
 repo_root = Path(__file__).resolve().parent.parent
 sys.path.append(str(repo_root))
 from tests.mock_sampler import get_mock_sample
+from config.config import mode as config_mode
+
 
 dm = Dataman()
 
@@ -20,7 +22,7 @@ dm = Dataman()
     sensor connected (set to dev mode in config)
 """
 
-def scd30_get_samples(times_to_loop=5, time_between_samples=1, mode="dev"):
+def scd30_get_samples(times_to_loop=5, time_between_samples=2, mode=config_mode):
 
     list_co2 = []; list_temp = []; list_hum = []
 
