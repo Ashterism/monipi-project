@@ -12,6 +12,14 @@ from tests.mock_sampler import get_mock_sample
 
 dm = Dataman()
 
+"""
+    this file controls the sampling process and makes use of the
+    dataman class to read/write to the data to csv
+
+    there is a dev mode so the code can be tested without the 
+    sensor connected (set to dev mode in config)
+"""
+
 def scd30_get_samples(times_to_loop=5, time_between_samples=1, mode="dev"):
 
     list_co2 = []; list_temp = []; list_hum = []

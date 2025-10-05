@@ -9,8 +9,12 @@ sys.path.append(str(repo_root))                                 # ready to use p
 from config.config import monipi_active, samples_to_average, secs_between_samples         # i.e. python -m monipi.__main__ etc
 
 """
+    main "runner" file
     calls the SCD30 sensor (sampler.py) and feeds in how many
     times should sample on a loop.  
+
+    is intended to run in perpetuity unless stopped via config
+    by changing 'polling_active' to false.
 """
 
 logging.basicConfig(
