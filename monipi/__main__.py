@@ -6,7 +6,7 @@ from sampler import scd30_get_samples
 from pathlib import Path                                        # can remove this and should work
 repo_root = Path(__file__).resolve().parent.parent              # with just from config.config once
 sys.path.append(str(repo_root))                                 # ready to use packaged load commands all the time 
-from config.config import samples_to_average, secs_between_samples         # i.e. python -m monipi.__main__ etc
+from config.config import monipi_active, samples_to_average, secs_between_samples         # i.e. python -m monipi.__main__ etc
 
 """
     calls the SCD30 sensor (sampler.py) and feeds in how many
@@ -23,10 +23,7 @@ logging.basicConfig(
 def main():
     logging.info("App started")
 
-### here change to loop until variable 'polling_active' is True
-###        -- and make that settable in the config --
-
-    while True:
+    while monipi_active == True:
         try:    
             scd30_get_samples(samples_to_average, secs_between_samples)
         except KeyboardInterrupt:
