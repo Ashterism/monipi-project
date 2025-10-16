@@ -24,3 +24,6 @@ Keep running (systemd)
         sudo cp ~/monipi_project/config/monipi.service /etc/systemd/system/monipi.service
     checked on heartbeat:
         journalctl -u monipi.service -f
+
+
+monipi-project/

@@ -3,16 +3,21 @@ from datetime import datetime, timezone
 from sensirion_i2c_driver import LinuxI2cTransceiver, I2cConnection, CrcCalculator
 from sensirion_driver_adapters.i2c_adapter.i2c_channel import I2cChannel
 from sensirion_i2c_scd30.device import Scd30Device
-from dataman import Dataman     # class to manage database / csv interactions
+from .mgr_data import Dataman     # class to manage database / csv interactions
 
 from pathlib import Path
 repo_root = Path(__file__).resolve().parent.parent
 sys.path.append(str(repo_root))
 from tests.mock_sampler import get_mock_sample
-from config.config import mode as config_mode
-
+from .config import mode as config_mode, reporting_period_in_mins, secs_between_samples
+"""
+from tests.mock_sampler import get_mock_sample
+from monipi.config import mode as config_mode, reporting_period_in_mins, secs_between_samples
+"""
 
 dm = Dataman()
+t2l = int((reporting_period_in_mins*60)/secs_between_samples)
+#print(t2l)
 
 """
     this file controls the sampling process and makes use of the
@@ -22,9 +27,10 @@ dm = Dataman()
     sensor connected (set to dev mode in config)
 """
 
-def scd30_get_samples(times_to_loop=5, time_between_samples=2, mode=config_mode):
+def scd30_get_samples(times_to_loop=t2l, time_between_samples=secs_between_samples, mode=config_mode):
 
     list_co2 = []; list_temp = []; list_hum = []
+    
 
     if mode == "dev":
         print(f"In {mode} mode, looping {times_to_loop} times with {time_between_samples} delay")
@@ -33,7 +39,7 @@ def scd30_get_samples(times_to_loop=5, time_between_samples=2, mode=config_mode)
                 (co2, temp, hum) = get_mock_sample()
                 dm.write_readings(datetime.now(timezone.utc), co2,temp, hum)
                 list_co2.append(co2); list_temp.append(temp); list_hum.append(hum)
-                # print(list_co2)
+                print(f"Writing to csv... e.g.{list_co2}")
 
                 time.sleep(time_between_samples)
             except Exception as exception_reason:

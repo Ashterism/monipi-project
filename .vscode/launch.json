@@ -1,0 +1,13 @@
+{
+    "configurations": [
+        
+        
+
+        {
+            "name": "Python Debugger: Python Module",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "monipi"
+        }
+    ]
+}

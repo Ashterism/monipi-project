@@ -1,27 +1,29 @@
 import sys, os
 import logging, signal
-from datetime import datetime
-from sampler import scd30_get_samples
 from datetime import datetime, timezone
+from .sample_scd30 import scd30_get_samples
+from .mgr_session import Sessionman
+from .utils.mgr_time import run_on_min
+from .utils.mgr_exits import pause_exit_till_loop_complete, exit_gracefully
+from .config import monipi_active
 
-from pathlib import Path                                        # can remove this and should work
-repo_root = Path(__file__).resolve().parent.parent              # with just from config.config once
-sys.path.append(str(repo_root))                                 # ready to use packaged load commands all the time 
-from config.config import monipi_active, samples_to_average, secs_between_samples         # i.e. python -m monipi.__main__ etc
 
-timestamp_utc = datetime.now(timezone.utc)
-timestamp_local = datetime.now()
+# note to self:
+#     run with:
+#         python -m monipi (from monipi_project)
+#     or for a script:
+#         python -m monipi/__main__.py (that folder)
 
 """
     main "runner" file
     calls the SCD30 sensor (sampler.py).
-        takes a sample every X seconds, for a loop of Y:
+        takes a sample every X econds, for a loop of Y:
             all samples are written to samples.csv
             all samples in the loop are averaged and written to sample_averages
-        the first sample is taken on the minute and then at X seconds after
+        the first sample is taken when the time aligns with the reporting interval
             the averaged value is timestamped to the end of the period 
             e.g. sample period = 5 mins and sample gap = 60 seconds
-                run at 12:34:23, starts at 12:35, timestamped 12:40
+                run at 12:34:23, starts at 12:35, averaged values timestamped 12:40
                     value is average of values at: 12:35, 12:36, 12:37, 12:38, 12:39
 
     is intended to run in perpetuity unless stopped via config
@@ -32,6 +34,13 @@ timestamp_local = datetime.now()
 
 """
 
+DEBUG = True
+
+def debug(msg):
+    if DEBUG:
+        print(msg)
+
+
 logging.basicConfig(
     # configuration for the built-in python logger function
     level=logging.INFO,
@@ -40,30 +49,21 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 
+
 def main():
     logging.info("App started")
+    debug(f"Monipi_active is set to: {monipi_active}")
+    i = 0
 
-    while monipi_active == True:
-        try:    
-            scd30_get_samples(samples_to_average, secs_between_samples)
+    while monipi_active:
+        run_on_min()
+        try:
+            # run at next reporting period
+            i += 1
+            debug(f"Averaged sample loop {i}")
+            scd30_get_samples()
         except KeyboardInterrupt:
-            exit_gracefully("User stopped with keyboard")
-
-## then add the runner here, to run at X secs / mins
-##         -- pass in scd30_sensor as the variable, and it runs that
-
-## add more tests?
-
-
-def exit_gracefully(exitmsg="no message provided", signum=""):
-    logging.info(
-        f"App exited - {exitmsg} {signum}",
-    )
-    # 
-    # finish logging
-    # close any open files etc
-    #
-    sys.exit(exitmsg)
+            pause_exit_till_loop_complete()
 
 
 def sigterm_handler(signum, frame):

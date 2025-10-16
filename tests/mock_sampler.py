@@ -5,7 +5,7 @@ path = Path(__file__).resolve().parent
 
 
 def get_mock_sample():
-    with open(path / "scd30sample.csv", "r") as testdata:
+    with open(path / "scd30_mock_samples.csv", "r") as testdata:
         reader = csv.reader(testdata)   # loads csv into reader
         rows = list(reader)             # then makes it a list
         row = random.choice(rows)       # picks a randow row
