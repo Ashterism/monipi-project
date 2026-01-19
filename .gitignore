@@ -1,8 +1,10 @@
 
-/data
+/monipi/data
 /logs
 /archive
 
+# macOS finder metadata file
+.DS_Store
 
 # with thanks to: https://raw.githubusercontent.com/github/gitignore/master/Python.gitignore
 # Byte-compiled / optimized / DLL files
@@ -12,7 +14,7 @@ __pycache__/
 
 # C extensions
 *.so
-
+ß
 # Distribution / packaging
 .Python
 build/

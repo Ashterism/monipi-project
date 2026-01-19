@@ -1,0 +1,21 @@
+
+
+2-Dec-25:   UPDATE EXITS LOGIC
+2-Dec-25:   Recap logic for writing to tables
+2-Dec-25:   Recap logic for order of sampling (can do warm up forst time and then forget?)
+2-Dec-25:   Add the time of the "Writing to csv... " before it
+
+
+
+
+
+
+
+CHECK THESE?
+
+- Add column headers to the data
+- add the max value function (and make it work for CO2, Temp, Humidity etc)
+- add some tests
+
+
+- log when the averges are written and check termination scipt waits for that

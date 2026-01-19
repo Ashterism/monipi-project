@@ -3,6 +3,7 @@
 Libraries used:
 
 (used .venv) - not on pi tho
+(source .venv/bin/activate)
 
 SCD30   # climate sensor
 PMS5003 # particulate matter sensor 
@@ -27,3 +28,12 @@ Keep running (systemd)
 
 
 monipi-project/
+
+
+====================
+Been a while??
+--------------
+
+connect via 
+
+in codebase use: source .venv/bin/activate
