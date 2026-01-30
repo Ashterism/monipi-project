@@ -11,6 +11,7 @@ PMS5003 # particulate matter sensor
 pip install sensirion-i2c-scd30 pms5003
 
 https://sensirion.github.io/python-i2c-scd30/index.html
+https://github.com/Sensirion/raspberry-pi-i2c-scd30/blob/master/README.md <- diagram for wiring
 
 ---
 *Pi set up*
