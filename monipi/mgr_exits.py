@@ -3,6 +3,9 @@ from .mgr_session import Sessionman
 
 sm = Sessionman()
 
+"""
+    functions to handle exiting the program gracefully
+"""
 
 def pause_exit_till_loop_complete():
     answer = ""

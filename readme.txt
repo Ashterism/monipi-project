@@ -34,6 +34,9 @@ monipi-project/
 Been a while??
 --------------
 
-connect via 
+connect via:
+
+ssh ash@monipi.local
+password: usual
 
 in codebase use: source .venv/bin/activate

@@ -18,11 +18,19 @@ dm = Dataman()
 t2l = int((reporting_period_in_mins * 60) / secs_between_samples)
 
 """
-    this file controls the sampling process and makes use of the
-    dataman class to read/write to the data to csv
+SCD30 sampling runner.
 
-    there is a dev mode so the code can be tested without the 
-    sensor connected (set to dev mode in config)
+Controls one full sampling cycle for a single reporting period:
+- initialises a sampling session
+- collects multiple sensor readings at a fixed interval
+- aggregates readings over the reporting window
+- writes raw samples (dev) and averaged values (dev + prod) via Dataman
+
+Supports a dev mode using mock samples so the sampling and persistence
+logic can be exercised without the physical sensor attached.
+
+This module runs once per call; repetition and scheduling are handled
+by the package entrypoint.
 """
 
 

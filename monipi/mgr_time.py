@@ -6,6 +6,16 @@ from .config import debug_status
 
 from monipi.config import reporting_period_in_mins, secs_between_samples
 
+"""
+Time-related helpers for Monipi.
+
+Handles two things:
+- aligning execution to a fixed reporting interval (run_on_min), so samples land on clean minute boundaries
+- tracking date changes to trigger daily rollovers/backups when the day ticks over (datetracker class)
+
+Keeps timing logic out of the main runner loop and re-usable.
+"""
+
 dm = Dataman()
 
 DEBUG = debug_status

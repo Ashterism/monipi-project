@@ -13,6 +13,8 @@
 
 CHECK THESE?
 
+- do i need to warm up the scd30 sensor each time or once before running
+
 - Add column headers to the data
 - add the max value function (and make it work for CO2, Temp, Humidity etc)
 - add some tests
