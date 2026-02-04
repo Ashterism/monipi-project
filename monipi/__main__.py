@@ -62,7 +62,7 @@ logging.basicConfig(
 
 def ensure_runtime_dirs():
     # check used directories exist, and if not create them
-    base_dir = Path (__file__).resolve().parent #/monipi/
+    base_dir = Path(__file__).resolve().parent #/monipi/
     data_dir = base_dir / "data"                #/monipi/data/
     dailies_dir = data_dir / "dailies"          #/monipi/data/dailies/
     
@@ -71,7 +71,7 @@ def ensure_runtime_dirs():
 
 
 def main():
-    ensure_runtime_dirs
+    ensure_runtime_dirs()
     logging.info("App started")
     debug(f"Monipi_active is set to: {monipi_active}")
     i = 0
