@@ -10,7 +10,13 @@ PMS5003 # particulate matter sensor
 
 pip install sensirion-i2c-scd30 pms5003
 
+**SCD30 Guidance / docs**
 https://sensirion.github.io/python-i2c-scd30/index.html
+
+**PMS5003 Guidance / docs**
+Using the Plantronic sensor
+Using Pimoroni library 
+https://github.com/pimoroni/pms5003-python?utm_source=chatgpt.com
 
 ---
 *Pi set up*
