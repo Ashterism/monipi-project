@@ -10,7 +10,7 @@ from pathlib import Path
 
 repo_root = Path(__file__).resolve().parent.parent
 sys.path.append(str(repo_root))
-from tests.mock_sampler import get_mock_sample
+from tests.mock_sampler import get_mock_scd30_sample
 from .config import mode as config_mode, reporting_period_in_mins, secs_between_samples
 
 sm = Sessionman()
@@ -47,11 +47,11 @@ def scd30_get_samples(
 
     if mode == "dev":
         print(
-            f"In {mode} mode, looping {times_to_loop} times with {time_between_samples} delay"
+            f"SCD30: In {mode} mode, looping {times_to_loop} times with {time_between_samples} delay"
         )
         for i in range(times_to_loop):
             try:
-                (co2, temp, hum) = get_mock_sample()
+                (co2, temp, hum) = get_mock_scd30_sample()
                 dm.write_readings(datetime.now(timezone.utc), co2, temp, hum)
                 list_co2.append(co2)
                 list_temp.append(temp)
