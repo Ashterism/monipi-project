@@ -42,7 +42,7 @@ def get_samples(times_to_loop=t2l, time_between_samples=secs_between_samples, mo
         pm1, pm25, pm10, pc03, pc25 = pms5003_get_sample()
         co2, temp, hum = scd30_get_samples()
         #--Write readings--#
-        dm.write_readings_pms5003(timestamp_utc, pm1, pm25, pm10, pc03, pc25, timestamp_utc)
+        dm.write_readings_pms5003(timestamp_utc, pm1, pm25, pm10, pc03, pc25)
         dm.write_readings_scd30(timestamp_utc, co2, temp, hum)
 
         #--Add values to respective lists--#

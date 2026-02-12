@@ -1,4 +1,4 @@
-mode = "prod"
+mode = "dev"
 monipi_active = "True"
 debug_status = True
 

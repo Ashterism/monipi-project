@@ -2,7 +2,7 @@ import sys, os
 import logging, signal
 from datetime import datetime, timezone
 from pathlib import Path
-from .sampler import get_samples()
+from .sampler import get_samples
 from .mgr_session import Sessionman
 from .mgr_time import run_on_min, Datetracker
 from .mgr_exits import pause_exit_till_loop_complete, exit_gracefully
@@ -11,34 +11,46 @@ from .config import monipi_active, debug_status
 DEBUG = debug_status
 
 """
-    RUN AS PACKAGE: python -m monipi
+RUN AS PACKAGE: python -m monipi
 
-    __main__ is the "runner" file
-        (variables live in the config file)
-        main designed to run once on an infinite loop
+__main__ is the application runner.
+Configuration values live in config.py.
 
-    Main:
-        whilst Monipi_Active is True:
-            runs until/unless keyboard interupt (or error)
-                
-            calls the SCD30 sensor (sample_scd30.py).
-                loops for a reporting period of X, with Y secs between samples
-                at the end of the reporting period, it averages the samples
-                all samples and averages are saved to respective csvs
+Main loop behaviour:
 
-                X and Y are defined in the Config
+While `monipi_active` is True:
 
-                the first sample is taken when the time aligns with the reporting interval
-                    the averaged value is timestamped to the end of the period 
-                    e.g. reporting period = 5 mins and sample gap = 60 seconds
-                        run at 12:34:23, starts at 12:35, averaged values timestamped 12:40
-                            value is average of values at: 12:35, 12:36, 12:37, 12:38, 12:39
-                
-            mgr_data handles data manipulation and writing to csv
-            mgr_time handles timing and date operations
-            mgr_exits handles exiting gracefully
-            mgr_session handles tracking a single sampling session with a json file
-            sample_scd30 orchestrates sampling from the SCD30 sensor
+    • Wait until the next reporting interval boundary (managed by mgr_time).
+    • Call sampler.get_samples() once.
+
+The sampler:
+    • Samples BOTH sensors (SCD30 and PMS5003) on a fixed interval.
+    • Writes raw readings for each sensor to CSV (including local + UTC timestamps).
+    • Accumulates values in memory during the reporting window.
+    • Calculates averages at the end of the window.
+    • Writes averaged values to separate CSV files.
+
+Timing example:
+    Reporting period = 5 minutes
+    Sample gap = 60 seconds
+
+    If started at 12:34:23:
+        First aligned sample at 12:35
+        Raw samples at: 12:35, 12:36, 12:37, 12:38, 12:39
+        Averaged row timestamped to end of window (12:40)
+
+Supporting modules:
+    • mgr_data          CSV schema + file writing
+    • mgr_time          Interval alignment + date tracking
+    • mgr_exits         Graceful shutdown handling
+    • mgr_session       Session tracking via JSON
+    • mgr_sensor_state  One-time hardware initialisation
+    • sample_*          Single-cycle sensor reads
+
+Design intent:
+    • Sensors initialise once and remain active.
+    • Separation of concerns between timing, sampling, and storage.
+    • Continuous, unattended operation via systemd.
 """
 
 # BACKLOG

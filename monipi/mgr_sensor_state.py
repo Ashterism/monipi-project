@@ -1,10 +1,8 @@
 import logging
 import time
 
-from sensirion_i2c_driver import LinuxI2cTransceiver, I2cConnection, CrcCalculator
-from sensirion_driver_adapters.i2c_adapter.i2c_channel import I2cChannel
-from sensirion_i2c_scd30.device import Scd30Device
-
+# note, sensors are imported at Initialisation to support running code
+# in dev env. without the libraries
 
 class Sensorstate:
     """
@@ -24,6 +22,10 @@ class Sensorstate:
         self._scd_i2c_transceiver = None
 
     def scd30_initialise(self):
+
+        from sensirion_i2c_driver import LinuxI2cTransceiver, I2cConnection, CrcCalculator
+        from sensirion_driver_adapters.i2c_adapter.i2c_channel import I2cChannel
+        from sensirion_i2c_scd30.device import Scd30Device
         try:
             # Keep the transceiver open for the lifetime of the process.
             self._scd_i2c_transceiver = LinuxI2cTransceiver("/dev/i2c-1")
