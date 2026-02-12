@@ -70,3 +70,9 @@ https://github.com/Sensirion/raspberry-pi-i2c-scd30/blob/master/images/raspi-i2c
 | 5 |  | RDY |  | High when data is available - do not connect
 | 6 |  | PWM |  | do not connect
 | 7 | blue | SEL | Interface select | Pull to ground or floating for I2C
+
+
+===
+NOTE ON POWER
+
+If you want this to be much more power efficient... power down sensors between readings.  Unnecessary if on mains.

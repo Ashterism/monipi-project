@@ -2,7 +2,7 @@ import sys, os
 import logging, signal
 from datetime import datetime, timezone
 from pathlib import Path
-from .sample_scd30 import scd30_get_samples
+from .sampler import get_samples()
 from .mgr_session import Sessionman
 from .mgr_time import run_on_min, Datetracker
 from .mgr_exits import pause_exit_till_loop_complete, exit_gracefully
@@ -83,7 +83,7 @@ def main():
             # run at next reporting period
             i += 1
             debug(f"Averaged sample loop {i}")
-            scd30_get_samples()
+            get_samples()
         except KeyboardInterrupt:
             pause_exit_till_loop_complete()
 
