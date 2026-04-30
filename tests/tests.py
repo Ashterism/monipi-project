@@ -1,6 +1,6 @@
 import pytest
 import os, signal
-from monipi.__main__ import sigterm_handler, exit_gracefully
+from src.monipi.__main__ import sigterm_handler, exit_gracefully
 
 
 def test_sigterm():

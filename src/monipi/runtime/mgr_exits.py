@@ -1,7 +1,7 @@
 import sys, logging
-from .mgr_session import Sessionman
+from ..process.session_manager import SessionManager
 
-sm = Sessionman()
+sm = SessionManager()
 
 """
     functions to handle exiting the program gracefully

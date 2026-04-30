@@ -2,56 +2,27 @@ import sys, os
 import logging, signal
 from datetime import datetime, timezone
 from pathlib import Path
-from .sampler import get_samples
-from .mgr_session import Sessionman
-from .mgr_time import run_on_min, Datetracker
-from .mgr_exits import pause_exit_till_loop_complete, exit_gracefully
+from .control.sampler import get_samples
+from .process.session_manager import SessionManager
+from .runtime.mgr_time import run_on_min, Datetracker
+from .runtime.mgr_exits import pause_exit_till_loop_complete, exit_gracefully
 from .config import monipi_active, debug_status
 
 DEBUG = debug_status
 
+
 """
-RUN AS PACKAGE: python -m monipi
+Entry point for Monipi.
+Run on (pi) start-up.
 
-__main__ is the application runner.
-Configuration values live in config.py.
+Runs a continuous loop:
+- waits for next reporting interval
+- calls sampler.get_samples()
 
-Main loop behaviour:
-
-While `monipi_active` is True:
-
-    • Wait until the next reporting interval boundary (managed by mgr_time).
-    • Call sampler.get_samples() once.
-
-The sampler:
-    • Samples BOTH sensors (SCD30 and PMS5003) on a fixed interval.
-    • Writes raw readings for each sensor to CSV (including local + UTC timestamps).
-    • Accumulates values in memory during the reporting window.
-    • Calculates averages at the end of the window.
-    • Writes averaged values to separate CSV files.
-
-Timing example:
-    Reporting period = 5 minutes
-    Sample gap = 60 seconds
-
-    If started at 12:34:23:
-        First aligned sample at 12:35
-        Raw samples at: 12:35, 12:36, 12:37, 12:38, 12:39
-        Averaged row timestamped to end of window (12:40)
-
-Supporting modules:
-    • mgr_data          CSV schema + file writing
-    • mgr_time          Interval alignment + date tracking
-    • mgr_exits         Graceful shutdown handling
-    • mgr_session       Session tracking via JSON
-    • mgr_sensor_state  One-time hardware initialisation
-    • sample_*          Single-cycle sensor reads
-
-Design intent:
-    • Sensors initialise once and remain active.
-    • Separation of concerns between timing, sampling, and storage.
-    • Continuous, unattended operation via systemd.
+Sensors are initialised once and reused.
+Designed to run continuously via systemd.
 """
+
 
 # BACKLOG
 #   - backup "current" to named daily (samples) and weekly (averages) files and clear csv as part of process

@@ -1,10 +1,10 @@
 from datetime import datetime, timezone
 import time, sys
 from .mgr_exits import pause_exit_till_loop_complete
-from .mgr_data import Dataman
-from .config import debug_status
+from ..process.data_manager import DataManager
+from ..config import debug_status
 
-from monipi.config import reporting_period_in_mins, secs_between_samples
+from src.monipi.config import reporting_period_in_mins, secs_between_samples
 
 """
 Time-related helpers for Monipi.
@@ -16,7 +16,7 @@ Handles two things:
 Keeps timing logic out of the main runner loop and re-usable.
 """
 
-dm = Dataman()
+dm = DataManager()
 
 DEBUG = debug_status
 

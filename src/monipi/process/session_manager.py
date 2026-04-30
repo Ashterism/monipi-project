@@ -1,9 +1,11 @@
 import json
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
+from .data_manager import DataManager
 
 """
-Session manager for tracking the lifecycle of an active sampling run.
+Session manager for tracking the lifecycle of the current reporting 
+window used to collect samples before averaging.
 
 This class handles creation and maintainance of a small JSON file
 that represents the current session state. The file acts as lightweight,
@@ -19,12 +21,12 @@ The session file is written to disk so it can be shared across modules
 and survive restarts or crashes.
 """
 
-class Sessionman:
+dm = DataManager()
+
+class SessionManager:
     def __init__(self):
         # get and store the path to the json file in class "memory"
-        self.file_path = (
-            Path(__file__).resolve().parent / "data/current_session_details.json"
-        )
+        self.file_path = dm.data_dir / "current_session_details.json"
 
     def create_session(
         self, reporting_period_in_mins, secs_between_samples, times_to_loop

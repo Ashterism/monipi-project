@@ -1,14 +1,14 @@
 import logging, time
 from datetime import datetime, timezone
-from .mgr_data import Dataman  # class to manage database / csv interactions
-from .mgr_session import Sessionman
-from .config import mode as config_mode, reporting_period_in_mins, secs_between_samples
+from ..process.data_manager import DataManager  # class to manage database / csv interactions
+from ..process.session_manager import SessionManager
+from ..config import mode as config_mode, reporting_period_in_mins, secs_between_samples
 
-from .sample_pms5003 import pms5003_get_sample
-from .sample_scd30 import scd30_get_samples
+from ..sensors.sample_pms5003 import pms5003_get_sample
+from ..sensors.sample_scd30 import scd30_get_samples
 
-sm = Sessionman()
-dm = Dataman()
+sm = SessionManager()
+dm = DataManager()
 t2l = int((reporting_period_in_mins * 60) / secs_between_samples)
 
 """
@@ -17,8 +17,7 @@ add explainer here
 
 """
 
-def get_samples(times_to_loop=t2l, time_between_samples=secs_between_samples, mode=config_mode
-):
+def get_samples(times_to_loop=t2l, time_between_samples=secs_between_samples, mode=config_mode):
     #--SCD30--#
     list_co2 = []
     list_temp = []

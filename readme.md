@@ -1,156 +1,262 @@
 
 # Monipi
 
-Monipi is a Raspberry Pi–based environmental monitoring system designed to measure indoor air quality continuously and reliably.
+Monipi is a Raspberry Pi-based environmental monitoring project for learning how to read, log, and later display indoor air quality data.
 
-It currently integrates two sensors:
-* SCD30 – CO₂ (ppm), temperature (°C), and relative humidity (%)
-* PMS5003 – Particulate matter (PM1.0, PM2.5, PM10) and particle counts
+It currently uses two sensors:
 
-The system runs continuously, samples both sensors on a fixed interval, logs raw readings to CSV, and writes averaged data over a defined reporting window.
+- **SCD30** - CO₂ in ppm, temperature in °C, and relative humidity in %
+- **PMS5003** - particulate matter readings for PM1.0, PM2.5, PM10, plus particle counts
 
-The focus of the project is learning clean architecture and building a robust, understandable monitoring pipeline rather than producing a polished commercial device.
+The project is intentionally simple. The aim is to understand the full pipeline: hardware wiring, sensor reads, data logging, averaging, background running, and eventually a basic web status page.
 
-## How Monipi works
+---
 
-Monipi runs as a continuous loop.
+## What Monipi does
+
+Monipi runs as a continuous sampling loop.
 
 At each sampling interval:
-* Both sensors are read
-* Raw readings are written to CSV
-* Values are added to in-memory lists for averaging
+
+- reads the SCD30 sensor
+- reads the PMS5003 sensor
+- writes raw readings to CSV
+- stores values in memory for the current reporting window
 
 At the end of each reporting window:
-* Averages are calculated
-* Averaged values are written to separate CSV files
+
+- calculates averaged values
+- writes averaged readings to CSV
+- keeps the process running for the next window
 
 Each raw row includes:
-* A local timestamp (for human readability)
-* A UTC timestamp (for consistency and later processing)
 
-Averaged rows represent the end of the reporting window.
+- local timestamp, for human readability
+- UTC timestamp, for consistency and later processing
 
-## Architecture
+---
 
-The project is structured to separate responsibilities cleanly:
-* sampler.py controls the sampling loop and averaging window
-* sample_scd30.py reads one SCD30 cycle
-* ample_pms5003.py reads one PMS5003 cycle
-* mgr_sensor_state.py handles one-time sensor initialisation and prevents repeated hardware resets
-* mgr_data.py owns the CSV schema and file writing
-* mgr_time.py, mgr_session.py, and mgr_exits.py support time control, session logic, and controlled shutdown behaviour
-* config.py defines timing and mode configuration
+## Project structure
+
+Current package structure:
+
+```text
+monipi/
+├── data/
+├── setup/
+├── src/
+│   └── monipi/
+│       ├── __main__.py
+│       ├── config.py
+│       ├── mgr_data.py
+│       ├── mgr_exits.py
+│       ├── mgr_sensor_state.py
+│       ├── mgr_session.py
+│       ├── mgr_time.py
+│       ├── sample_pms5003.py
+│       ├── sample_scd30.py
+│       └── sampler.py
+├── tests/
+├── pyproject.toml
+└── readme.md
+```
+
+Main responsibilities:
+
+- `__main__.py` starts the application
+- `sampler.py` controls the sampling loop and reporting window
+- `sample_scd30.py` reads one SCD30 sample
+- `sample_pms5003.py` reads one PMS5003 sample
+- `mgr_sensor_state.py` keeps sensor objects alive and avoids repeated hardware initialisation
+- `mgr_data.py` owns CSV schemas and file writing
+- `mgr_session.py` manages session-level state
+- `mgr_time.py` handles time formatting and reporting intervals
+- `mgr_exits.py` handles controlled shutdown behaviour
+- `config.py` defines mode, timing, and runtime configuration
 
 Sensors are initialised once and kept running. They are not reset between samples when running on mains power.
 
-## Date Storage
+---
+
+## Data storage
 
 Raw readings are stored separately per sensor:
-* current_samples_scd30.csv
-* current_samples_pms5003.csv
 
-Averaged readings are stored separately:
-* current_sample_averages_scd30.csv
-* current_sample_averages_pms5003.csv
+- `data/current_samples_scd30.csv`
+- `data/current_samples_pms5003.csv`
 
-The schema is intentionally simple and explicit. CSV is used for transparency, portability, and ease of later integration into a website or similar.
+Averaged readings are also stored in CSV files.
 
+CSV is used because it is transparent, easy to inspect, and easy to reuse later in a web page, dashboard, spreadsheet, or database.
 
-## Raspberry Pi Setup
-On the Raspberry Pi:
-* Enable I²C (for SCD30)
-* Enable Serial (for PMS5003)
+---
 
-Monipi is intended to run continuously via systemd. A service file is included in the config directory and can be copied into /etc/systemd/system/.
+## Development setup
 
-Logs can be monitored using journalctl.
+Create and activate a virtual environment:
 
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
 
-## Development Environment
+Install the project in editable mode:
 
-Development is typically done using a local Python virtual environment. The .venv directory is used on macOS for development only and is not required (though fine to use) on the Pi.  
+```bash
+pip install -e .
+```
 
-Required libraries:
-* sensirion-i2c-scd30
-* pms5003
+Install any required runtime libraries listed in `pyproject.toml`.
 
-Mock sensor data is used in development mode to allow coding without hardware attached.
+Useful sensor libraries:
 
+```bash
+pip install sensirion-i2c-scd30 pms5003
+```
+
+If Flask is added for the web interface:
+
+```bash
+pip install flask
+```
+
+Run Monipi locally:
+
+```bash
+python -m monipi
+```
+
+In development mode, mock sensor data is used so the code can run without the sensors attached.
+
+---
+
+## Raspberry Pi setup
+
+On the Raspberry Pi, open config:
+
+```bash
+sudo raspi-config
+```
+
+Enable:
+
+- I²C, for the SCD30
+- Serial, for the PMS5003
+
+The PMS5003 uses serial via `/dev/serial0`.
+
+The SCD30 uses I²C.
+
+---
 
 ## Wiring
 
-### SCD30 (I²C)
+Use the wiring diagram in `setup/wiring_diagram.png` as the main wiring reference.
 
-Connected via I²C to the Raspberry Pi.
+![Monipi wiring diagram](setup/wiring_diagram.png)
 
-Only the required pins are connected:
-	•	VDD
-	•	GND
-	•	SCL
-	•	SDA
-	•	SEL (for interface selection)
+### SCD30 wiring
 
-https://github.com/Sensirion/raspberry-pi-i2c-scd30/blob/master/images/raspi-i2c-pinout-3.3V-SEL.png
+| SCD30 pin | Raspberry Pi pin | Purpose |
+|---|---:|---|
+| VDD | Pin 1 | 3.3V power |
+| GND | Pin 6 | Ground |
+| TX/SCL | Pin 5 | I²C SCL / GPIO 3 |
+| RX/SDA | Pin 3 | I²C SDA / GPIO 2 |
+| SEL | Pin 9 | Ground, selects I²C mode |
 
-![alt text](/setup/pi_ios.png)
+Do not connect:
 
-![alt text](/setup/scd30_ios.png)
+- RDY
+- PWM
 
-| *Pin* | *Cable Color* | *Name* | *Description*  | *Comments* |
-|-------|---------------|:------:|----------------|------------|
-| 1 | red | VDD | Supply Voltage | 3.3V to 5.5V
-| 2 | black | GND | Ground |
-| 3 | yellow | SCL | I2C: Serial clock input |
-| 4 | green | SDA | I2C: Serial data input / output |
-| 5 |  | RDY |  | High when data is available - do not connect
-| 6 |  | PWM |  | do not connect
-| 7 | blue | SEL | Interface select | Pull to ground or floating for I2C
+### PMS5003 wiring
 
+| PMS5003 pin | Raspberry Pi pin | Purpose |
+|---|---:|---|
+| VCC | Pin 2 | 5V power |
+| GND | Pin 14 | Ground |
+| RX | Pin 8 | Pi TXD / GPIO 14 |
+| TX | Pin 10 | Pi RXD / GPIO 15 |
 
+The PMS5003 breakout also has other pins, but these are not required for the current setup.
 
-### PMS5003 (Serial)
+---
 
-Connected via serial using /dev/serial0.
+## Running as a service
 
-Uses the Pimoroni PMS5003 Python library.
+A systemd service file is included in `setup/monipi.service`.
 
+Copy it to systemd:
 
-## Power Considerations
+```bash
+sudo cp setup/monipi.service /etc/systemd/system/monipi.service
+```
 
-The system is currently designed to run on mains power.
+Reload systemd:
+
+```bash
+sudo systemctl daemon-reload
+```
+
+Enable Monipi to start on boot:
+
+```bash
+sudo systemctl enable monipi
+```
+
+Start it:
+
+```bash
+sudo systemctl start monipi
+```
+
+Check status:
+
+```bash
+systemctl status monipi
+```
+
+Follow logs:
+
+```bash
+journalctl -u monipi.service -f
+```
+
+If the project folder is renamed, update `WorkingDirectory` and `ExecStart` inside `setup/monipi.service` and `/etc/systemd/system/monipi.service`.
+
+---
+
+## Power considerations
+
+The current version is designed for mains power.
 
 Sensors remain powered and in continuous measurement mode. There is no power-cycling between readings.
 
-If deployed on battery in future, optimisation could include:
-* Sleeping PMS5003 between reads
-* Reducing WiFi usage
-* Increasing reporting interval
+Possible future battery optimisations:
 
-
-## Relevant sources
-
-
-
-## Useful notes
-
-Can be easiest to use venv on both environments:
-- source .venv/bin/activate)
-
-There are libraries for both Sensors:
-
-*SCD*
-- pip install sensirion-i2c-scd30 pms5003
-- SCD30 Guidance / docs: https://sensirion.github.io/python-i2c-scd30/index.html
-- PMS5003 Guidance / docs: https://github.com/pimoroni/pms5003-python?utm_source=chatgpt.com
+- sleep the PMS5003 between reads
+- reduce Wi-Fi usage
+- increase the reporting interval
+- add a low-power operating mode
 
 ---
-*Pi set up*
 
-sudo raspi-config
-    enable I²C (for SCD30)
-    enable Serial (for PMS5003).?
+## Planned web interface
 
-To set up the Pi to autorun at beginning, run:
-- sudo cp ~/monipi_project/config/monipi.service /etc/systemd/system/monipi.service
-- check on heartbeat after reboot:
-        journalctl -u monipi.service -f
+A simple web interface should show:
+
+- whether Monipi is running
+- latest SCD30 reading
+- latest PMS5003 reading
+- latest sample timestamp
+- current session details
+
+The first version should be a basic status page, not a full dashboard.
+
+---
+
+## Useful links
+
+- SCD30 Python docs: <https://sensirion.github.io/python-i2c-scd30/index.html>
+- Pimoroni PMS5003 Python library: <https://github.com/pimoroni/pms5003-python>

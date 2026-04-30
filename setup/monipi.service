@@ -5,8 +5,8 @@ After=multi-user.target
 [Service]
 Type=simple
 RemainAfterExit=no
-WorkingDirectory=/home/ash/monipi_project
-ExecStart=/home/ash/monipi_project/.venv/bin/python3 -m monipi
+WorkingDirectory=/home/ash/monipi
+ExecStart=/home/ash/monipi/.venv/bin/python3 -m monipi
 Restart=always
 
 [Install]

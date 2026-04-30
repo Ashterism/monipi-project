@@ -1,8 +1,6 @@
-import csv, os
+import csv
 from pathlib import Path
 from datetime import datetime, timedelta
-
-path = Path(__file__).resolve().parent
 
 """ 
     this is a utility class to manage the data 
@@ -10,29 +8,19 @@ path = Path(__file__).resolve().parent
 """
 
 
-class Dataman:
+class DataManager:
     def __init__(self):
-        self.csvpath_samples_scd30 = str(path / "data/current_samples_scd30.csv")
-        self.csvpath_sample_averages_scd30 = str(path / "data/current_sample_averages_scd30.csv")
+        self.project_root = Path(__file__).resolve().parents[3]
+        self.data_dir = self.project_root / "data"
+        self.data_dir.mkdir(parents=True, exist_ok=True)
+
+        self.csvpath_samples_scd30 = self.data_dir / "current_samples_scd30.csv"
+        self.csvpath_sample_averages_scd30 = self.data_dir / "current_sample_averages_scd30.csv"
         
-        self.csvpath_samples_pms5003 = str(path / "data/current_samples_pms5003.csv")
-        self.csvpath_sample_averages_pms5003 = str(path / "data/current_sample_averages_pms5003.csv")
-        # if header row missing then add?
+        self.csvpath_samples_pms5003 = self.data_dir / "current_samples_pms5003.csv"
+        self.csvpath_sample_averages_pms5003 = self.data_dir / "current_sample_averages_pms5003.csv"
 
-    # def read_averages(self, tbc=""):
-    #     # this is a placeholder method for now - not in USE
-    #     with open(self.csvpath_sample_averages, "r") as averages_csv:
-    #         reader = csv.reader(averages_csv)  # loads csv into reader
-
-    #         if tbc == "":
-    #             for row in reader:
-    #                 print(row)
-    #         else:
-    #             return
-
-    # read_last_entry
-    # read_total entries
-    # read_high_low (and datetime)
+        self.dailies_dir = self.data_dir / "dailies"
 
     #==== SCD30 ====#
 
@@ -64,12 +52,11 @@ class Dataman:
     def backup_dailies(self):
         date_for_file = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
 
-        dailies_path = path / "data" / "dailies"
-        dailies_path.mkdir(parents=True, exist_ok=True)
+        self.dailies_dir.mkdir(parents=True, exist_ok=True)
 
         # ---- SCD30 ----
-        scd_src = path / "data" / "current_session_details_scd30.json"
-        scd_dst = dailies_path / f"{date_for_file}_scd30.json"
+        scd_src = self.data_dir / "current_session_details_scd30.json"
+        scd_dst = self.dailies_dir / f"{date_for_file}_scd30.json"
 
         if scd_src.exists():
             if not scd_dst.exists():
@@ -80,8 +67,8 @@ class Dataman:
             print("No SCD30 session file to back up.")
 
         # ---- PMS5003 ----
-        pms_src = path / "data" / "current_session_details_pms5003.json"
-        pms_dst = dailies_path / f"{date_for_file}_pms5003.json"
+        pms_src = self.data_dir / "current_session_details_pms5003.json"
+        pms_dst = self.dailies_dir / f"{date_for_file}_pms5003.json"
 
         if pms_src.exists():
             if not pms_dst.exists():

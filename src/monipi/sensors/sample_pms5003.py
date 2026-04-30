@@ -1,7 +1,7 @@
 import sys, logging
 from pathlib import Path
-from .config import mode as config_mode
-from .mgr_sensor_state import Sensorstate
+from ..config import mode as config_mode
+from ..process.sensor_state import Sensorstate
 
 repo_root = Path(__file__).resolve().parent.parent
 sys.path.append(str(repo_root))

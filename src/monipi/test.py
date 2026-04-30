@@ -1,13 +1,13 @@
-from .mgr_session import Sessionman
-from .mgr_data import Dataman
-from .mgr_time import Datetracker
+from .process.session_manager import SessionManager
+from .process.data_manager import DataManager
+from .runtime.mgr_time import Datetracker
 from .config import reporting_period_in_mins, secs_between_samples
 import time
 from pathlib import Path
 from datetime import datetime, timedelta
 
-session = Sessionman()
-dm = Dataman()
+session = SessionManager()
+dm = DataManager()
 cd = Datetracker()
 
 
