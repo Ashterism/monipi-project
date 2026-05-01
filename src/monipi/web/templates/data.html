@@ -1,0 +1,64 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Monipi Data</title>
+</head>
+<body>
+    <h1>Recent averaged data</h1>
+
+    <p><a href="/">Back to status</a></p>
+
+    <h2>SCD30</h2>
+
+    {% if scd30_rows %}
+        <table border="1" cellpadding="6">
+            <thead>
+                <tr>
+                    {% for key in scd30_rows[0].keys() %}
+                        <th>{{ key }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in scd30_rows %}
+                    <tr>
+                        {% for value in row.values() %}
+                            <td>{{ value }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No averaged SCD30 data found.</p>
+    {% endif %}
+
+    <h2>PMS5003</h2>
+
+    {% if pms5003_rows %}
+        <table border="1" cellpadding="6">
+            <thead>
+                <tr>
+                    {% for key in pms5003_rows[0].keys() %}
+                        <th>{{ key }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in pms5003_rows %}
+                    <tr>
+                        {% for value in row.values() %}
+                            <td>{{ value }}</td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No averaged PMS5003 data found.</p>
+    {% endif %}
+</body>
+</html>

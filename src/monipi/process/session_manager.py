@@ -1,4 +1,3 @@
-import json
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from .data_manager import DataManager
@@ -48,15 +47,13 @@ class SessionManager:
             "expected end time": s_end,
             "status": "in progress",
         }
-        #(json.dumps(session_details))
-        # write to file
-        with open(self.file_path, "w") as json_file:
-            json.dump(session_details, json_file)
+
+        # write session details to a json file
+        dm.write_json(self.file_path, session_details)
 
     def check_session_end(self):
-        with open(self.file_path, "r") as json_file:
-            session_details = json.load(json_file)
-            return session_details["expected end time"]
+        session_details = dm.read_json(self.file_path)
+        return session_details["expected end time"]
 
     def secs_to_end(self):
         exp_end_time_astime = datetime.strptime(
@@ -69,14 +66,10 @@ class SessionManager:
 
         return f"Time remaining is {hrs} hours, {mins} mins, and {secs} secs"
 
-    def change_session_status(self, new_status):
-        with open(self.file_path, "r+") as json_file:
-            session_details = json.load(json_file)
-            session_details["status"] = new_status
-            json_file.seek(0)  # return to the start
-            json.dump(session_details, json_file)
-            json_file.truncate()  # delete stuff after
-            print(session_details)
+    def change_session_status(self, new_status):        
+        session_details = dm.read_json(self.file_path)
+        session_details["status"] = new_status
+        dm.write_json(self.file_path, session_details)
 
 
 """

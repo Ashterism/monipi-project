@@ -1,0 +1,48 @@
+
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Monipi Status</title>
+</head>
+<body>
+    <h1>Monipi status</h1>
+
+    <p><a href="/data">View recent averaged data</a></p>
+
+    <h2>Current session</h2>
+
+    {% if session %}
+        <table border="1" cellpadding="6">
+            <tbody>
+                {% for key, value in session.items() %}
+                    <tr>
+                        <th>{{ key }}</th>
+                        <td>{{ value }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No current session file found.</p>
+    {% endif %}
+
+    <h2>Latest averaged SCD30 reading</h2>
+
+    {% if latest_average %}
+        <table border="1" cellpadding="6">
+            <tbody>
+                {% for key, value in latest_average.items() %}
+                    <tr>
+                        <th>{{ key }}</th>
+                        <td>{{ value }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No averaged SCD30 data found.</p>
+    {% endif %}
+</body>
+</html>

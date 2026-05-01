@@ -1,4 +1,4 @@
-import csv
+import csv, json
 from pathlib import Path
 from datetime import datetime, timedelta
 
@@ -21,6 +21,21 @@ class DataManager:
         self.csvpath_sample_averages_pms5003 = self.data_dir / "current_sample_averages_pms5003.csv"
 
         self.dailies_dir = self.data_dir / "dailies"
+
+    #==== JSON Read and Write ====#
+    
+    def write_json(self, file_path, content):
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(file_path, "w") as json_file:
+            json.dump(content, json_file)
+
+    def read_json(self, file_path):
+        if not file_path.exists():
+            return None
+        with open(file_path, "r") as json_file:
+            return json.load(json_file)
+        
 
     #==== SCD30 ====#
 
