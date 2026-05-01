@@ -1,7 +1,9 @@
 
-/monipi/data
+/data
 /logs
 /archive
+/.vscode
+
 
 # macOS finder metadata file
 .DS_Store
