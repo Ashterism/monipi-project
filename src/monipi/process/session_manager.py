@@ -1,5 +1,4 @@
 from datetime import datetime, timezone, timedelta
-from pathlib import Path
 from .storage import Storage
 
 """
@@ -24,8 +23,7 @@ and survive restarts or crashes.
 class SessionManager:
     def __init__(self):
         # get and store the path to the json file in class "memory"
-        project_root = Path(__file__).resolve().parents[3]
-        self.storage = Storage(project_root)
+        self.storage = Storage()
         self.file_path = self.storage.data_dir / "current_session_details.json"
 
     def create_session(

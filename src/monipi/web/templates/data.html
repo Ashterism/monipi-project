@@ -1,5 +1,3 @@
-
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -11,24 +9,28 @@
 
     <p><a href="/">Back to status</a></p>
 
-    <h2>SCD30</h2>
+    <h2>SCD30 averages</h2>
 
-    {% if scd30_rows %}
+    {% if scd30_average_rows %}
         <table border="1" cellpadding="6">
             <thead>
                 <tr>
-                    {% for key in scd30_rows[0].keys() %}
-                        <th>{{ key }}</th>
-                    {% endfor %}
+                    <th>Local time</th>
+                    <th>CO₂ ppm</th>
+                    <th>Temp °C</th>
+                    <th>Humidity %</th>
+                    <th>UTC time</th>
                 </tr>
             </thead>
             <tbody>
-                {% for row in scd30_rows %}
-                    <tr>
-                        {% for value in row.values() %}
-                            <td>{{ value }}</td>
-                        {% endfor %}
-                    </tr>
+                {% for row in scd30_average_rows %}
+                <tr>
+                    <td>{{ row.time }}</td>
+                    <td>{{ row.co2 }}</td>
+                    <td>{{ row.temp }}</td>
+                    <td>{{ row.hum }}</td>
+                    <td>{{ row.utc_time }}</td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -36,24 +38,32 @@
         <p>No averaged SCD30 data found.</p>
     {% endif %}
 
-    <h2>PMS5003</h2>
+    <h2>PMS5003 averages</h2>
 
-    {% if pms5003_rows %}
+    {% if pms5003_average_rows %}
         <table border="1" cellpadding="6">
             <thead>
                 <tr>
-                    {% for key in pms5003_rows[0].keys() %}
-                        <th>{{ key }}</th>
-                    {% endfor %}
+                    <th>Local time</th>
+                    <th>PM1</th>
+                    <th>PM2.5</th>
+                    <th>PM10</th>
+                    <th>PC0.3</th>
+                    <th>PC2.5</th>
+                    <th>UTC time</th>
                 </tr>
             </thead>
             <tbody>
-                {% for row in pms5003_rows %}
-                    <tr>
-                        {% for value in row.values() %}
-                            <td>{{ value }}</td>
-                        {% endfor %}
-                    </tr>
+                {% for row in pms5003_average_rows %}
+                <tr>
+                    <td>{{ row.time }}</td>
+                    <td>{{ row.pm1 }}</td>
+                    <td>{{ row.pm25 }}</td>
+                    <td>{{ row.pm10 }}</td>
+                    <td>{{ row.pc03 }}</td>
+                    <td>{{ row.pc25 }}</td>
+                    <td>{{ row.utc_time }}</td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>

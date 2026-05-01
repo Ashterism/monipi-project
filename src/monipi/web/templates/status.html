@@ -1,5 +1,3 @@
-
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -28,21 +26,41 @@
         <p>No current session file found.</p>
     {% endif %}
 
-    <h2>Latest averaged SCD30 reading</h2>
+    <h2>Latest readings</h2>
 
-    {% if latest_average %}
+    {% if latest_scd30_list and latest_pms5003_list %}
         <table border="1" cellpadding="6">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>CO₂ ppm</th>
+                    <th>Temp °C</th>
+                    <th>Humidity %</th>
+                    <th>PM1</th>
+                    <th>PM2.5</th>
+                    <th>PM10</th>
+                    <th>PC0.3</th>
+                    <th>PC2.5</th>
+                </tr>
+            </thead>
             <tbody>
-                {% for key, value in latest_average.items() %}
-                    <tr>
-                        <th>{{ key }}</th>
-                        <td>{{ value }}</td>
-                    </tr>
+                {% for i in range(latest_scd30_list|length) %}
+                <tr>
+                    <td>{{ latest_scd30_list[i].time }}</td>
+                    <td>{{ latest_scd30_list[i].co2 }}</td>
+                    <td>{{ latest_scd30_list[i].temp }}</td>
+                    <td>{{ latest_scd30_list[i].hum }}</td>
+                    <td>{{ latest_pms5003_list[i].pm1 }}</td>
+                    <td>{{ latest_pms5003_list[i].pm25 }}</td>
+                    <td>{{ latest_pms5003_list[i].pm10 }}</td>
+                    <td>{{ latest_pms5003_list[i].pc03 }}</td>
+                    <td>{{ latest_pms5003_list[i].pc25 }}</td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
     {% else %}
-        <p>No averaged SCD30 data found.</p>
+        <p>No sensor data found.</p>
     {% endif %}
 </body>
 </html>
