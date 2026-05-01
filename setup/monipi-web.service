@@ -1,0 +1,12 @@
+[Unit]
+Description=Monipi Web Dashboard
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/ash/monipi
+ExecStart=/home/ash/monipi/.venv/bin/python3 -m monipi.web.app
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

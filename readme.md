@@ -225,6 +225,48 @@ journalctl -u monipi.service -f
 
 If the project folder is renamed, update `WorkingDirectory` and `ExecStart` inside `setup/monipi.service` and `/etc/systemd/system/monipi.service`.
 
+### Running the web dashboard as a service
+
+A separate systemd service is used for the Flask web interface.
+
+Copy the web service file:
+
+```bash
+sudo cp setup/monipi-web.service /etc/systemd/system/monipi-web.service
+```
+
+Reload systemd:
+
+```bash
+sudo systemctl daemon-reload
+```
+
+Enable the web dashboard to start on boot:
+
+```bash
+sudo systemctl enable monipi-web
+```
+
+Start it:
+
+```bash
+sudo systemctl start monipi-web
+```
+
+Check status:
+
+```bash
+systemctl status monipi-web
+```
+
+Follow logs:
+
+```bash
+journalctl -u monipi-web.service -f
+```
+
+The web service runs independently from the main Monipi sampler. If the sampler is not running, the dashboard should still load but display no or stale data.
+
 ---
 
 ## Power considerations

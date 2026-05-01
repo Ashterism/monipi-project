@@ -35,8 +35,8 @@ def get_samples(times_to_loop=t2l, time_between_samples=secs_between_samples, mo
     for i in range(times_to_loop):
 
         #--GET TIME--#
-        timestamp_utc = datetime.now(timezone.utc)
-        timestamp_local = datetime.now().strftime("%D/%M/%y %H:%M:%S")
+        timestamp_utc = datetime.now(timezone.utc).replace(microsecond=0)
+        timestamp_local = timestamp_utc.astimezone().strftime("%Y-%m-%d %H:%M:%S")
         #--READ SCD30 & PMS5002--#
         pm1, pm25, pm10, pc03, pc25 = pms5003_get_sample()
         co2, temp, hum = scd30_get_samples()

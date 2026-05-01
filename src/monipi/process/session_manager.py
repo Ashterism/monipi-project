@@ -1,6 +1,6 @@
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
-from .data_manager import DataManager
+from .storage import Storage
 
 """
 Session manager for tracking the lifecycle of the current reporting 
@@ -20,12 +20,13 @@ The session file is written to disk so it can be shared across modules
 and survive restarts or crashes.
 """
 
-dm = DataManager()
 
 class SessionManager:
     def __init__(self):
         # get and store the path to the json file in class "memory"
-        self.file_path = dm.data_dir / "current_session_details.json"
+        project_root = Path(__file__).resolve().parents[3]
+        self.storage = Storage(project_root)
+        self.file_path = self.storage.data_dir / "current_session_details.json"
 
     def create_session(
         self, reporting_period_in_mins, secs_between_samples, times_to_loop
@@ -49,10 +50,10 @@ class SessionManager:
         }
 
         # write session details to a json file
-        dm.write_json(self.file_path, session_details)
+        self.storage.write_json(self.file_path, session_details)
 
     def check_session_end(self):
-        session_details = dm.read_json(self.file_path)
+        session_details = self.storage.read_json(self.file_path)
         return session_details["expected end time"]
 
     def secs_to_end(self):
@@ -67,9 +68,9 @@ class SessionManager:
         return f"Time remaining is {hrs} hours, {mins} mins, and {secs} secs"
 
     def change_session_status(self, new_status):        
-        session_details = dm.read_json(self.file_path)
+        session_details = self.storage.read_json(self.file_path)
         session_details["status"] = new_status
-        dm.write_json(self.file_path, session_details)
+        self.storage.write_json(self.file_path, session_details)
 
 
 """
