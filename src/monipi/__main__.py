@@ -1,14 +1,16 @@
-import sys, os
 import logging, signal
-from datetime import datetime, timezone
-from pathlib import Path
+
+from . import config
+from .utils.environment_detector import detect_runmode
+
+config.mode = detect_runmode()
+
 from .control.sampler import get_samples
 from .process.session_manager import SessionManager
 from .runtime.mgr_time import run_on_min, Datetracker
 from .runtime.mgr_exits import pause_exit_till_loop_complete, exit_gracefully
-from .config import monipi_active, debug_status
 
-DEBUG = debug_status
+DEBUG = config.debug_status
 
 
 """
@@ -45,10 +47,11 @@ logging.basicConfig(
 
 def main():
     logging.info("App started")
-    debug(f"Monipi_active is set to: {monipi_active}")
+    logging.info(f"Run mode detected: {config.mode}")
+    debug(f"Monipi_active is set to: {config.monipi_active}")
     i = 0
 
-    while monipi_active:
+    while config.monipi_active:
         dt.backup_dailies_on_date_change()
         run_on_min() # blocks operation until time condition met
         try:

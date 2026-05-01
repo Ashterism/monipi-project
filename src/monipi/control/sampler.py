@@ -1,5 +1,6 @@
 import logging, time
 from datetime import datetime, timezone
+
 from ..process.data_manager import DataManager  # class to manage database / csv interactions
 from ..process.session_manager import SessionManager
 from ..config import mode as config_mode, reporting_period_in_mins, secs_between_samples
