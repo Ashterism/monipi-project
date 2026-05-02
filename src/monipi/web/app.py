@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 
 from monipi.web.dashboard import get_status_data, get_recent_data
 
@@ -12,7 +12,8 @@ def status():
 
 @app.route("/data")
 def data():
-    return render_template("data.html", **get_recent_data(limit=10))
+    timeframe = request.args.get("timeframe", default=1, type=int)
+    return render_template("data.html", **get_recent_data(timeframe_hours=timeframe))
 
 
 if __name__ == "__main__":

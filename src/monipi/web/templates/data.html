@@ -8,7 +8,18 @@
 <body>
     <h1>Recent averaged data</h1>
 
+    <form method="get" action="/data" style="margin-bottom: 12px;">
+      <label for="timeframe">Timeframe:</label>
+      <select id="timeframe" name="timeframe" onchange="this.form.submit()">
+        <option value="1" {% if request.args.get('timeframe', '1') == '1' %}selected{% endif %}>Last hour</option>
+        <option value="8" {% if request.args.get('timeframe') == '8' %}selected{% endif %}>Last 8 hours</option>
+      </select>
+      <noscript><button type="submit">Apply</button></noscript>
+    </form>
+
     <p><a href="/">Back to status</a></p>
+
+    <p>Showing: {{ 'Last hour' if request.args.get('timeframe', '1') == '1' else 'Last 8 hours' }}</p>
 
     <h2>SCD30 averages</h2>
 
