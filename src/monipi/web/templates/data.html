@@ -3,6 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>Monipi Data</title>
+    <script src="{{ url_for('static', filename='js/chart.min.js') }}"></script>
 </head>
 <body>
     <h1>Recent averaged data</h1>
@@ -37,6 +38,44 @@
     {% else %}
         <p>No averaged SCD30 data found.</p>
     {% endif %}
+
+<h2>CO₂ Chart</h2>
+<canvas id="co2Chart" width="800" height="300"></canvas>
+
+<script>
+    const scdLabels = {{ scd30_average_rows | map(attribute='time') | list | tojson }};
+    const co2Data = {{ scd30_average_rows | map(attribute='co2') | list | tojson }};
+
+    const ctx = document.getElementById('co2Chart').getContext('2d');
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: scdLabels,
+            datasets: [{
+                label: 'CO₂ (ppm)',
+                data: co2Data,
+                tension: 0.2
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Time'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'ppm'
+                    }
+                }
+            }
+        }
+    });
+</script>
 
     <h2>PMS5003 averages</h2>
 

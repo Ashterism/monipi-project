@@ -1,9 +1,6 @@
 import logging, signal
 
-from . import config
-from .utils.environment_detector import detect_runmode
-
-config.mode = detect_runmode()
+import monipi.config as config
 
 from .control.sampler import get_samples
 from .process.session_manager import SessionManager

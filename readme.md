@@ -106,19 +106,7 @@ Install the project in editable mode:
 pip install -e .
 ```
 
-Install any required runtime libraries listed in `pyproject.toml`.
-
-Useful sensor libraries:
-
-```bash
-pip install sensirion-i2c-scd30 pms5003
-```
-
-If Flask is added for the web interface:
-
-```bash
-pip install flask
-```
+This installs Monipi plus the runtime dependencies listed in `pyproject.toml`, including Flask and the sensor libraries.
 
 Run Monipi locally:
 
@@ -187,27 +175,12 @@ The PMS5003 breakout also has other pins, but these are not required for the cur
 
 A systemd service file is included in `setup/monipi.service`.
 
-Copy it to systemd:
+Copy it to systemd, reload systemd, enable it on boot, and start it:
 
 ```bash
 sudo cp setup/monipi.service /etc/systemd/system/monipi.service
-```
-
-Reload systemd:
-
-```bash
 sudo systemctl daemon-reload
-```
-
-Enable Monipi to start on boot:
-
-```bash
 sudo systemctl enable monipi
-```
-
-Start it:
-
-```bash
 sudo systemctl start monipi
 ```
 
@@ -229,33 +202,35 @@ If the project folder is renamed, update `WorkingDirectory` and `ExecStart` insi
 
 A separate systemd service is used for the Flask web interface.
 
-Copy the web service file:
+Before starting the web service, make sure the current project version is installed into the virtual environment:
+
+```bash
+cd ~/monipi
+source .venv/bin/activate
+pip install -e .
+```
+
+This is needed after pulling changes that add new modules or dependencies, such as `monipi.web`, `pms5003`, or `sensirion-i2c-scd30`.
+
+Copy the web service file, reload systemd, enable it on boot, and start it:
 
 ```bash
 sudo cp setup/monipi-web.service /etc/systemd/system/monipi-web.service
-```
-
-Reload systemd:
-
-```bash
 sudo systemctl daemon-reload
-```
-
-Enable the web dashboard to start on boot:
-
-```bash
 sudo systemctl enable monipi-web
-```
-
-Start it:
-
-```bash
 sudo systemctl start monipi-web
 ```
 
 Check status:
 
 ```bash
+systemctl status monipi-web
+```
+
+After a reboot, check that it started automatically:
+
+```bash
+systemctl is-enabled monipi-web
 systemctl status monipi-web
 ```
 

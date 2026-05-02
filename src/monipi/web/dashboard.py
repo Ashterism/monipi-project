@@ -41,8 +41,13 @@ def _format_scd30_row(row):
     if not row or len(row) < 4:
         return None
 
+    clean_time = _clean_time(row[0])
+    date_part, time_part = clean_time.split(" ")
+
     return {
-        "time": _clean_time(row[0]),
+        "date": date_part,
+        "time": time_part,
+        "timestamp": clean_time,
         "co2": _format_number(row[1]),
         "temp": _format_number(row[2]),
         "hum": _format_number(row[3]),
@@ -53,8 +58,13 @@ def _format_pms5003_row(row):
     if not row or len(row) < 6:
         return None
 
+    clean_time = _clean_time(row[0])
+    date_part, time_part = clean_time.split(" ")
+
     return {
-        "time": _clean_time(row[0]),
+        "date": date_part,
+        "time": time_part,
+        "timestamp": clean_time,
         "pm1": _format_number(row[1]),
         "pm25": _format_number(row[2]),
         "pm10": _format_number(row[3]),
@@ -67,8 +77,13 @@ def _format_scd30_average_row(row):
     if not row or len(row) < 5:
         return None
 
+    clean_time = _clean_time(row[0])
+    date_part, time_part = clean_time.split(" ")
+
     return {
-        "time": _clean_time(row[0]),
+        "date": date_part,
+        "time": time_part,
+        "timestamp": clean_time,
         "co2": _format_number(row[1]),
         "temp": _format_number(row[2]),
         "hum": _format_number(row[3]),
@@ -80,8 +95,13 @@ def _format_pms5003_average_row(row):
     if not row or len(row) < 7:
         return None
 
+    clean_time = _clean_time(row[0])
+    date_part, time_part = clean_time.split(" ")
+
     return {
-        "time": _clean_time(row[0]),
+        "date": date_part,
+        "time": time_part,
+        "timestamp": clean_time,
         "pm1": _format_number(row[1]),
         "pm25": _format_number(row[2]),
         "pm10": _format_number(row[3]),

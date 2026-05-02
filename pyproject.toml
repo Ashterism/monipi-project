@@ -4,7 +4,9 @@ version = "1.0.0"
 requires-python = ">=3.10"
 
 dependencies = [
-    "flask"
+    "flask",
+    "pms5003",
+    "sensirion-i2c-scd30"
 ]
 
 [tool.setuptools]
