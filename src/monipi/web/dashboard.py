@@ -70,7 +70,9 @@ def _format_scd30_average_row(row):
     if not row or len(row) < 5:
         return None
 
-    date_part, time_part, clean_time = _utc_to_local_parts(row[0])
+    # row[0] is already local time → do NOT convert
+    clean_time = _clean_time(row[0])
+    date_part, time_part = clean_time.split(" ")
 
     return {
         "date": date_part,
@@ -87,7 +89,9 @@ def _format_pms5003_average_row(row):
     if not row or len(row) < 7:
         return None
 
-    date_part, time_part, clean_time = _utc_to_local_parts(row[0])
+    # row[0] is already local time → do NOT convert
+    clean_time = _clean_time(row[0])
+    date_part, time_part = clean_time.split(" ")
 
     return {
         "date": date_part,
@@ -146,16 +150,22 @@ def get_recent_data(timeframe_hours=1):
     
     filtered_scd30_rows = []
     for row in scd30_rows:
-        # get time from row, strip tz, convert to datetime object
-        row_time = datetime.strptime(_clean_time(row[0]), "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
+        # SCD30: UTC is at index 4
+        if len(row) > 4:
+            row_time = datetime.strptime(_clean_time(row[4]), "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
+        else:
+            continue
         # if row since target start add to list, else discard
         if row_time >= target_start:
             filtered_scd30_rows.append(row)
-    
+
     filtered_pms5003_rows = []
     for row in pms5003_rows:
-        # get time from row, strip tz, convert to datetime object
-        row_time = datetime.strptime(_clean_time(row[0]), "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
+        # PMS5003: UTC is at index 6
+        if len(row) > 6:
+            row_time = datetime.strptime(_clean_time(row[6]), "%Y-%m-%d %H:%M:%S").replace(tzinfo=timezone.utc)
+        else:
+            continue
         # if row since target start add to list, else discard
         if row_time >= target_start:
             filtered_pms5003_rows.append(row)
