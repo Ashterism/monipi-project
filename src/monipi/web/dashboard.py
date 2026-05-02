@@ -6,26 +6,6 @@ dm = DataManager()
 storage = dm.storage
 
 
-def _read_latest_raw_row(file_path):
-    if not file_path.exists():
-        return None
-
-    with open(file_path, "r", newline="") as f:
-        rows = [row for row in csv.reader(f) if row]
-
-    return rows[-1] if rows else None
-
-
-def _read_last_n_rows(file_path, n):
-    if not file_path.exists():
-        return []
-
-    with open(file_path, "r", newline="") as f:
-        rows = [row for row in csv.reader(f) if row]
-
-    return rows[-n:] if rows else []
-
-
 def _clean_time(value):
     return value.split("+")[0]
 
@@ -116,8 +96,8 @@ def get_status_data():
 
     session = storage.read_json(session_path)
 
-    scd30_rows = _read_last_n_rows(dm.csvpath_samples_scd30, 5)
-    pms_rows = _read_last_n_rows(dm.csvpath_samples_pms5003, 5)
+    scd30_rows = storage.read_last_n_rows(dm.csvpath_samples_scd30, 5)
+    pms_rows = storage.read_last_n_rows(dm.csvpath_samples_pms5003, 5)
 
     latest_scd30_list = [_format_scd30_row(r) for r in scd30_rows if r]
     latest_pms5003_list = [_format_pms5003_row(r) for r in pms_rows if r]
@@ -135,8 +115,8 @@ def get_status_data():
 
 
 def get_recent_data(limit=10):
-    scd30_rows = _read_last_n_rows(dm.csvpath_sample_averages_scd30, limit)
-    pms5003_rows = _read_last_n_rows(dm.csvpath_sample_averages_pms5003, limit)
+    scd30_rows = storage.read_last_n_rows(dm.csvpath_sample_averages_scd30, limit)
+    pms5003_rows = storage.read_last_n_rows(dm.csvpath_sample_averages_pms5003, limit)
 
     scd30_average_rows = [_format_scd30_average_row(r) for r in scd30_rows if r]
     pms5003_average_rows = [_format_pms5003_average_row(r) for r in pms5003_rows if r]

@@ -42,6 +42,24 @@ class Storage:
 
         return rows[-limit:] if limit else rows
 
+    def read_last_row(self, file_path):
+        if not file_path.exists():
+            return None
+
+        with open(file_path, "r", newline="") as f:
+            rows = [row for row in csv.reader(f) if row]
+
+        return rows[-1] if rows else None
+
+    def read_last_n_rows(self, file_path, n):
+        if not file_path.exists():
+            return []
+
+        with open(file_path, "r", newline="") as f:
+            rows = [row for row in csv.reader(f) if row]
+
+        return rows[-n:] if rows else []
+
     def clear_directory(self, directory):
         if not directory.exists():
             return
