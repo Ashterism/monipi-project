@@ -17,6 +17,13 @@
       <noscript><button type="submit">Apply</button></noscript>
     </form>
 
+    <form method="get" action="/data" style="margin-bottom: 12px;">
+      <input type="hidden" name="timeframe" value="{{ request.args.get('timeframe', '1') }}">
+      <label for="page">Page:</label>
+      <input type="number" id="page" name="page" value="{{ request.args.get('page', 1) }}" min="1" style="width:60px;">
+      <button type="submit">Go</button>
+    </form>
+
     <p><a href="/">Back to status</a></p>
 
     <p>Showing: {{ 'Last hour' if request.args.get('timeframe', '1') == '1' else 'Last 8 hours' }}</p>
@@ -50,12 +57,20 @@
         <p>No averaged SCD30 data found.</p>
     {% endif %}
 
+{% set page = request.args.get('page', '1')|int %}
+<div style="margin:10px 0;">
+  {% if page > 1 %}
+    <a href="/data?timeframe={{ request.args.get('timeframe', '1') }}&page={{ page - 1 }}">← Prev</a>
+  {% endif %}
+  <a href="/data?timeframe={{ request.args.get('timeframe', '1') }}&page={{ page + 1 }}" style="margin-left:10px;">Next →</a>
+</div>
+
 <h2>CO₂ Chart</h2>
 <canvas id="co2Chart" width="800" height="300"></canvas>
 
 <script>
-    const scdLabels = {{ scd30_average_rows | map(attribute='time') | list | tojson }};
-    const co2Data = {{ scd30_average_rows | map(attribute='co2') | list | tojson }};
+    const scdLabels = {{ scd30_chart_rows | map(attribute='time') | list | tojson }};
+    const co2Data = {{ scd30_chart_rows | map(attribute='co2') | list | tojson }};
 
     const ctx = document.getElementById('co2Chart').getContext('2d');
 
@@ -120,5 +135,13 @@
     {% else %}
         <p>No averaged PMS5003 data found.</p>
     {% endif %}
+
+{% set page = request.args.get('page', '1')|int %}
+<div style="margin:10px 0;">
+  {% if page > 1 %}
+    <a href="/data?timeframe={{ request.args.get('timeframe', '1') }}&page={{ page - 1 }}">← Prev</a>
+  {% endif %}
+  <a href="/data?timeframe={{ request.args.get('timeframe', '1') }}&page={{ page + 1 }}" style="margin-left:10px;">Next →</a>
+</div>
 </body>
 </html>

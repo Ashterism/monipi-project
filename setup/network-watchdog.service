@@ -1,0 +1,10 @@
+
+
+[Unit]
+Description=Network watchdog - recover Wi-Fi by restarting NetworkManager
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/home/ash/monipi/setup/network-watchdog.sh

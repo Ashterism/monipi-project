@@ -139,7 +139,7 @@ def get_status_data():
     }
 
 
-def get_recent_data(timeframe_hours=1):
+def get_recent_data(timeframe_hours=1, page=1, page_size=10):
     timeframe_mins = timeframe_hours * 60
     limit = int(timeframe_mins / reporting_period_in_mins) + 10
     current_time = datetime.now(timezone.utc)
@@ -170,12 +170,25 @@ def get_recent_data(timeframe_hours=1):
         if row_time >= target_start:
             filtered_pms5003_rows.append(row)
 
-    scd30_average_rows = [_format_scd30_average_row(r) for r in filtered_scd30_rows if r]
-    pms5003_average_rows = [_format_pms5003_average_row(r) for r in filtered_pms5003_rows if r]
-    
+    scd30_average_rows_full = [_format_scd30_average_row(r) for r in filtered_scd30_rows if r]
+    pms5003_average_rows_full = [_format_pms5003_average_row(r) for r in filtered_pms5003_rows if r]
+
+    # chart data stays chronological: oldest → newest
+    scd30_chart_rows = scd30_average_rows_full[:]
+    pms5003_chart_rows = pms5003_average_rows_full[:]
+
+
+    # pagination for table only
+    start = (page - 1) * page_size
+    end = start + page_size
+
+    scd30_average_rows = scd30_average_rows_full[start:end]
+    pms5003_average_rows = pms5003_average_rows_full[start:end]
 
 
     return {
         "scd30_average_rows": scd30_average_rows,
         "pms5003_average_rows": pms5003_average_rows,
+        "scd30_chart_rows": scd30_chart_rows,
+        "pms5003_chart_rows": pms5003_chart_rows,
     }
