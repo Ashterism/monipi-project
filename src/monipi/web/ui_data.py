@@ -1,6 +1,6 @@
-import csv
 from datetime import datetime, timedelta, timezone
 from monipi.process.data_manager import DataManager
+from monipi.process.air_quality import get_gauge_config
 from ..config import reporting_period_in_mins
 
 dm = DataManager()
@@ -30,6 +30,13 @@ def _format_number(value, decimal_places=2):
         return f"{float(value):.{decimal_places}f}"
     except (TypeError, ValueError):
         return value
+
+
+def _as_float(value):
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
 
 
 def _format_scd30_row(row):
@@ -106,6 +113,25 @@ def _format_pms5003_average_row(row):
     }
 
 
+def _build_dashboard_readings(latest_scd30, latest_pms5003):
+    co2_value = _as_float(latest_scd30.get("co2")) if latest_scd30 else None
+    temp_value = _as_float(latest_scd30.get("temp")) if latest_scd30 else None
+    humidity_value = _as_float(latest_scd30.get("hum")) if latest_scd30 else None
+
+    pm1_value = _as_float(latest_pms5003.get("pm1")) if latest_pms5003 else None
+    pm25_value = _as_float(latest_pms5003.get("pm25")) if latest_pms5003 else None
+    pm10_value = _as_float(latest_pms5003.get("pm10")) if latest_pms5003 else None
+
+    return {
+        "co2": get_gauge_config("co2", co2_value),
+        "temperature": get_gauge_config("temperature", temp_value),
+        "humidity": get_gauge_config("humidity", humidity_value),
+        "pm1": get_gauge_config("pm1", pm1_value),
+        "pm25": get_gauge_config("pm25", pm25_value),
+        "pm10": get_gauge_config("pm10", pm10_value),
+    }
+
+
 def get_status_data():
     session_path = storage.data_dir / "current_session_details.json"
 
@@ -129,6 +155,7 @@ def get_status_data():
 
     latest_scd30 = latest_scd30_list[-1] if latest_scd30_list else None
     latest_pms5003 = latest_pms5003_list[-1] if latest_pms5003_list else None
+    dashboard_readings = _build_dashboard_readings(latest_scd30, latest_pms5003)
 
     return {
         "session": session,
@@ -136,6 +163,13 @@ def get_status_data():
         "latest_pms5003": latest_pms5003,
         "latest_scd30_list": latest_scd30_list,
         "latest_pms5003_list": latest_pms5003_list,
+        "dashboard_readings": dashboard_readings,
+        "co2_ppm": dashboard_readings["co2"]["value"],
+        "temperature_c": dashboard_readings["temperature"]["value"],
+        "humidity_percent": dashboard_readings["humidity"]["value"],
+        "pm1_0": dashboard_readings["pm1"]["value"],
+        "pm2_5": dashboard_readings["pm25"]["value"],
+        "pm10": dashboard_readings["pm10"]["value"],
     }
 
 

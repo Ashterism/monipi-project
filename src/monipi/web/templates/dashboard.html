@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Monipi Dashboard</title>
+  <script src="{{ url_for('static', filename='js/echarts.min.js') }}"></script>
+  <style>
+    :root {
+      --bg: #151816;
+      --panel: #202620;
+      --panel-soft: #293129;
+      --text: #f3f5f0;
+      --muted: #aeb7ad;
+      --line: #3b463b;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+
+    .intro {
+      margin: 6px 0 0;
+      color: var(--muted);
+    }
+
+    .nav a {
+      color: var(--muted);
+      margin-left: 16px;
+      text-decoration: none;
+    }
+
+    .nav a:hover {
+      color: var(--text);
+      text-decoration: underline;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 18px;
+    }
+
+    .reading-card {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 16px;
+      align-items: center;
+      min-height: 210px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: linear-gradient(180deg, var(--panel), var(--panel-soft));
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .reading-card:hover {
+      border-color: #7c897c;
+    }
+
+    .gauge-chart {
+      width: 150px;
+      height: 150px;
+    }
+
+    .reading-title {
+      margin: 0 0 4px;
+      font-size: 1.15rem;
+    }
+
+    .reading-value {
+      margin: 0 0 8px;
+      font-size: 1.6rem;
+      font-weight: 700;
+    }
+
+    .reading-value span {
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .reading-summary {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .sparkline-chart {
+      width: 100%;
+      height: 72px;
+    }
+
+    .debug-note {
+      margin-top: 24px;
+      padding: 14px 16px;
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 520px) {
+      .page {
+        padding: 14px;
+      }
+
+      .topbar {
+        display: block;
+      }
+
+      .nav {
+        margin-top: 12px;
+      }
+
+      .nav a {
+        margin-left: 0;
+        margin-right: 12px;
+      }
+
+      .reading-card {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div>
+        <h1>Monipi dashboard</h1>
+        <p class="intro">Current air quality and climate readings.</p>
+      </div>
+      <nav class="nav">
+        <a href="/">Status</a>
+        <a href="/data">Raw data</a>
+      </nav>
+    </header>
+
+    <section aria-label="Latest readings">
+
+      <!-- Row 1: CO2 only -->
+      <div class="dashboard-grid" style="grid-template-columns: 1fr;">
+        <a class="reading-card" href="/data?timeframe=1">
+          <div id="co2Gauge" class="gauge-chart" aria-hidden="true"></div>
+          <div>
+            <h2 class="reading-title">CO₂</h2>
+            <p class="reading-value">{{ dashboard_readings.co2.value|default('—') }} <span>{{ dashboard_readings.co2.unit }}</span></p>
+            <p class="reading-summary">Status: {{ dashboard_readings.co2.status_label }}</p>
+            <div id="co2Sparkline" class="sparkline-chart" aria-hidden="true"></div>
+          </div>
+        </a>
+      </div>
+
+      <!-- Row 2: Temp + Humidity -->
+      <div class="dashboard-grid" style="margin-top:18px; grid-template-columns: repeat(2, 1fr);">
+        <a class="reading-card" href="/data?timeframe=1">
+          <div id="tempGauge" class="gauge-chart" aria-hidden="true"></div>
+          <div>
+            <h2 class="reading-title">Temperature</h2>
+            <p class="reading-value">{{ dashboard_readings.temperature.value|default('—') }} <span>{{ dashboard_readings.temperature.unit }}</span></p>
+            <p class="reading-summary">Status: {{ dashboard_readings.temperature.status_label }}</p>
+            <div id="tempSparkline" class="sparkline-chart" aria-hidden="true"></div>
+          </div>
+        </a>
+
+        <a class="reading-card" href="/data?timeframe=1">
+          <div id="humidityGauge" class="gauge-chart" aria-hidden="true"></div>
+          <div>
+            <h2 class="reading-title">Humidity</h2>
+            <p class="reading-value">{{ dashboard_readings.humidity.value|default('—') }} <span>{{ dashboard_readings.humidity.unit }}</span></p>
+            <p class="reading-summary">Status: {{ dashboard_readings.humidity.status_label }}</p>
+            <div id="humiditySparkline" class="sparkline-chart" aria-hidden="true"></div>
+          </div>
+        </a>
+      </div>
+
+      <!-- Row 3: PM readings -->
+      <div class="dashboard-grid" style="margin-top:18px; grid-template-columns: repeat(3, 1fr);">
+        <a class="reading-card" href="/data?timeframe=1">
+          <div id="pm25Gauge" class="gauge-chart" aria-hidden="true"></div>
+          <div>
+            <h2 class="reading-title">PM2.5</h2>
+            <p class="reading-value">{{ dashboard_readings.pm25.value|default('—') }} <span>{{ dashboard_readings.pm25.unit }}</span></p>
+            <p class="reading-summary">Status: {{ dashboard_readings.pm25.status_label }}</p>
+            <div id="pm25Sparkline" class="sparkline-chart" aria-hidden="true"></div>
+          </div>
+        </a>
+
+        <a class="reading-card" href="/data?timeframe=1">
+          <div id="pm10Gauge" class="gauge-chart" aria-hidden="true"></div>
+          <div>
+            <h2 class="reading-title">PM10</h2>
+            <p class="reading-value">{{ dashboard_readings.pm10.value|default('—') }} <span>{{ dashboard_readings.pm10.unit }}</span></p>
+            <p class="reading-summary">Status: {{ dashboard_readings.pm10.status_label }}</p>
+            <div id="pm10Sparkline" class="sparkline-chart" aria-hidden="true"></div>
+          </div>
+        </a>
+
+        <a class="reading-card" href="/data?timeframe=1">
+          <div id="pm1Gauge" class="gauge-chart" aria-hidden="true"></div>
+          <div>
+            <h2 class="reading-title">PM1</h2>
+            <p class="reading-value">{{ dashboard_readings.pm1.value|default('—') }} <span>{{ dashboard_readings.pm1.unit }}</span></p>
+            <p class="reading-summary">Status: {{ dashboard_readings.pm1.status_label }}</p>
+            <div id="pm1Sparkline" class="sparkline-chart" aria-hidden="true"></div>
+          </div>
+        </a>
+      </div>
+
+    </section>
+
+    <div class="debug-note">
+      Dashboard gauges now use threshold and status data from the air quality domain layer. CO₂ uses recent history; the other sparklines still use placeholder trend data until their recent histories are wired in.
+    </div>
+  </main>
+
+  <script>
+    const readings = [
+      {
+        gaugeId: 'co2Gauge',
+        sparklineId: 'co2Sparkline',
+        value: {{ dashboard_readings.co2.value|default(0, true)|tojson }},
+        min: {{ dashboard_readings.co2.gauge_min|tojson }},
+        max: {{ dashboard_readings.co2.gauge_max|tojson }},
+        bands: {{ dashboard_readings.co2.bands|tojson }},
+        statusColour: {{ dashboard_readings.co2.status_colour|tojson }},
+        trend: {{ scd30_chart_rows | map(attribute='co2') | list | tojson }}
+      },
+      {
+        gaugeId: 'pm25Gauge',
+        sparklineId: 'pm25Sparkline',
+        value: {{ dashboard_readings.pm25.value|default(0, true)|tojson }},
+        min: {{ dashboard_readings.pm25.gauge_min|tojson }},
+        max: {{ dashboard_readings.pm25.gauge_max|tojson }},
+        bands: {{ dashboard_readings.pm25.bands|tojson }},
+        statusColour: {{ dashboard_readings.pm25.status_colour|tojson }},
+        trend: [8, 12, 10, 18, 15, 20, {{ dashboard_readings.pm25.value|default(0, true)|tojson }}]
+      },
+      {
+        gaugeId: 'pm10Gauge',
+        sparklineId: 'pm10Sparkline',
+        value: {{ dashboard_readings.pm10.value|default(0, true)|tojson }},
+        min: {{ dashboard_readings.pm10.gauge_min|tojson }},
+        max: {{ dashboard_readings.pm10.gauge_max|tojson }},
+        bands: {{ dashboard_readings.pm10.bands|tojson }},
+        statusColour: {{ dashboard_readings.pm10.status_colour|tojson }},
+        trend: [15, 20, 18, 24, 28, 25, {{ dashboard_readings.pm10.value|default(0, true)|tojson }}]
+      },
+      {
+        gaugeId: 'tempGauge',
+        sparklineId: 'tempSparkline',
+        value: {{ dashboard_readings.temperature.value|default(0, true)|tojson }},
+        min: {{ dashboard_readings.temperature.gauge_min|tojson }},
+        max: {{ dashboard_readings.temperature.gauge_max|tojson }},
+        bands: {{ dashboard_readings.temperature.bands|tojson }},
+        statusColour: {{ dashboard_readings.temperature.status_colour|tojson }},
+        trend: [22, 23, 24, 24, 25, 24, {{ dashboard_readings.temperature.value|default(0, true)|tojson }}]
+      },
+      {
+        gaugeId: 'humidityGauge',
+        sparklineId: 'humiditySparkline',
+        value: {{ dashboard_readings.humidity.value|default(0, true)|tojson }},
+        min: {{ dashboard_readings.humidity.gauge_min|tojson }},
+        max: {{ dashboard_readings.humidity.gauge_max|tojson }},
+        bands: {{ dashboard_readings.humidity.bands|tojson }},
+        statusColour: {{ dashboard_readings.humidity.status_colour|tojson }},
+        trend: [45, 48, 50, 55, 52, 58, {{ dashboard_readings.humidity.value|default(0, true)|tojson }}]
+      },
+      {
+        gaugeId: 'pm1Gauge',
+        sparklineId: 'pm1Sparkline',
+        value: {{ dashboard_readings.pm1.value|default(0, true)|tojson }},
+        min: {{ dashboard_readings.pm1.gauge_min|tojson }},
+        max: {{ dashboard_readings.pm1.gauge_max|tojson }},
+        bands: {{ dashboard_readings.pm1.bands|tojson }},
+        statusColour: {{ dashboard_readings.pm1.status_colour|tojson }},
+        trend: [5, 8, 7, 12, 10, 14, {{ dashboard_readings.pm1.value|default(0, true)|tojson }}]
+      }
+    ];
+
+    function renderGauge(reading) {
+      const chart = echarts.init(document.getElementById(reading.gaugeId));
+
+      chart.setOption({
+        series: [
+          {
+            type: 'gauge',
+            startAngle: 205,
+            endAngle: -25,
+            min: reading.min,
+            max: reading.max,
+            splitNumber: 4,
+            radius: '100%',
+            axisLine: {
+              lineStyle: {
+                width: 12,
+                color: reading.bands
+              }
+            },
+            pointer: {
+              width: 4,
+              length: '55%'
+            },
+            axisTick: {
+              distance: -16,
+              length: 4,
+              lineStyle: {
+                color: '#f3f5f0',
+                width: 1
+              }
+            },
+            splitLine: {
+              distance: -18,
+              length: 8,
+              lineStyle: {
+                color: '#f3f5f0',
+                width: 1
+              }
+            },
+            axisLabel: {
+              show: false
+            },
+            detail: {
+              show: false
+            },
+            data: [
+              { value: reading.value }
+            ]
+          }
+        ]
+      });
+    }
+
+    function renderSparkline(reading) {
+      const chart = echarts.init(document.getElementById(reading.sparklineId));
+      if (!reading.trend || reading.trend.length === 0) {
+        return;
+      }
+      chart.setOption({
+        grid: {
+          top: 8,
+          right: 4,
+          bottom: 8,
+          left: 4
+        },
+        xAxis: {
+          type: 'category',
+          show: false,
+          data: reading.trend.map((_, index) => index + 1)
+        },
+        yAxis: {
+          type: 'value',
+          show: false,
+          scale: true
+        },
+        series: [
+          {
+            type: 'line',
+            data: reading.trend,
+            smooth: true,
+            symbol: 'none',
+            lineStyle: {
+              width: 2,
+              color: reading.statusColour
+            },
+            areaStyle: {
+              opacity: 0.12,
+              color: reading.statusColour
+            }
+          }
+        ]
+      });
+    }
+
+    readings.forEach((reading) => {
+      renderGauge(reading);
+      renderSparkline(reading);
+    });
+
+    window.addEventListener('resize', () => {
+      readings.forEach((reading) => {
+        echarts.getInstanceByDom(document.getElementById(reading.gaugeId))?.resize();
+        echarts.getInstanceByDom(document.getElementById(reading.sparklineId))?.resize();
+      });
+    });
+  </script>
+</body>
+</html>

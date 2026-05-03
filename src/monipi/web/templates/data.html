@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>Monipi Data</title>
-    <script src="{{ url_for('static', filename='js/chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/echarts.min.js') }}"></script>
 </head>
 <body>
     <h1>Recent averaged data</h1>
@@ -20,13 +20,13 @@
     <form method="get" action="/data" style="margin-bottom: 12px;">
       <input type="hidden" name="timeframe" value="{{ request.args.get('timeframe', '1') }}">
       <label for="page">Page:</label>
-      <input type="number" id="page" name="page" value="{{ request.args.get('page', 1) }}" min="1" style="width:60px;">
+      <input type="number" id="page" name="page" value="{{ page }}" min="1" style="width:60px;">
       <button type="submit">Go</button>
     </form>
 
     <p><a href="/">Back to status</a></p>
 
-    <p>Showing: {{ 'Last hour' if request.args.get('timeframe', '1') == '1' else 'Last 8 hours' }}</p>
+    <p>Showing: {{ 'Last hour' if timeframe_hours == 1 else 'Last 8 hours' }}</p>
 
     <h2>SCD30 averages</h2>
 
@@ -57,50 +57,35 @@
         <p>No averaged SCD30 data found.</p>
     {% endif %}
 
-{% set page = request.args.get('page', '1')|int %}
-<div style="margin:10px 0;">
-  {% if page > 1 %}
-    <a href="/data?timeframe={{ request.args.get('timeframe', '1') }}&page={{ page - 1 }}">← Prev</a>
-  {% endif %}
-  <a href="/data?timeframe={{ request.args.get('timeframe', '1') }}&page={{ page + 1 }}" style="margin-left:10px;">Next →</a>
-</div>
-
 <h2>CO₂ Chart</h2>
-<canvas id="co2Chart" width="800" height="300"></canvas>
+<div id="co2Chart" style="width: 800px; height: 300px;"></div>
 
 <script>
     const scdLabels = {{ scd30_chart_rows | map(attribute='time') | list | tojson }};
     const co2Data = {{ scd30_chart_rows | map(attribute='co2') | list | tojson }};
 
-    const ctx = document.getElementById('co2Chart').getContext('2d');
+    const chartDom = document.getElementById('co2Chart');
+    const myChart = echarts.init(chartDom);
 
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: scdLabels,
-            datasets: [{
-                label: 'CO₂ (ppm)',
-                data: co2Data,
-                tension: 0.2
-            }]
+    const option = {
+        xAxis: {
+            type: 'category',
+            data: scdLabels
         },
-        options: {
-            scales: {
-                x: {
-                    title: {
-                        display: true,
-                        text: 'Time'
-                    }
-                },
-                y: {
-                    title: {
-                        display: true,
-                        text: 'ppm'
-                    }
-                }
+        yAxis: {
+            type: 'value'
+        },
+        series: [
+            {
+                name: 'CO₂ (ppm)',
+                type: 'line',
+                data: co2Data,
+                smooth: true
             }
-        }
-    });
+        ]
+    };
+
+    myChart.setOption(option);
 </script>
 
     <h2>PMS5003 averages</h2>
@@ -136,12 +121,12 @@
         <p>No averaged PMS5003 data found.</p>
     {% endif %}
 
-{% set page = request.args.get('page', '1')|int %}
+{% set current_page = page|int %}
 <div style="margin:10px 0;">
-  {% if page > 1 %}
-    <a href="/data?timeframe={{ request.args.get('timeframe', '1') }}&page={{ page - 1 }}">← Prev</a>
+  {% if current_page > 1 %}
+    <a href="/data?timeframe={{ timeframe_hours }}&page={{ current_page - 1 }}">← Prev</a>
   {% endif %}
-  <a href="/data?timeframe={{ request.args.get('timeframe', '1') }}&page={{ page + 1 }}" style="margin-left:10px;">Next →</a>
+  <a href="/data?timeframe={{ timeframe_hours }}&page={{ current_page + 1 }}" style="margin-left:10px;">Next →</a>
 </div>
 </body>
 </html>
