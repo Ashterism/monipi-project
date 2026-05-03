@@ -1,5 +1,3 @@
-
-
 [Unit]
 Description=Network watchdog - recover Wi-Fi by restarting NetworkManager
 Wants=network-online.target
