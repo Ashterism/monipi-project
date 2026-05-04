@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request
-
+from monipi.utils.environment_detector import detect_runmode
 from monipi.web.ui_data import get_status_data, get_recent_data, get_reading_detail_data
 
 app = Flask(__name__)
@@ -14,7 +14,7 @@ def status():
 @app.route("/dashboard")
 def dashboard():
     dashboard_context = get_status_data()
-    recent_context = get_recent_data(timeframe_hours=1, page=1)
+    recent_context = get_recent_data(timeframe_hours=8, page=1)
     dashboard_context.update(recent_context)
     return render_template("dashboard.html", **dashboard_context)
 
@@ -42,5 +42,8 @@ def data():
     return render_template("data.html", **data_context)
 
 
+mode = detect_runmode()
+debug_mode = (mode == "dev")
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5005, debug=True)
+    app.run(host="0.0.0.0", port=5005, debug=debug_mode)

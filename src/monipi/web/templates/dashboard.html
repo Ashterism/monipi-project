@@ -238,7 +238,7 @@
     </section>
 
     <div class="debug-note">
-      Dashboard gauges now use threshold and status data from the air quality domain layer. CO₂ uses recent history; the other sparklines still use placeholder trend data until their recent histories are wired in.
+      Dashboard gauges use the latest averaged reading. Sparklines show the last 8 hours of averaged readings.
     </div>
   </main>
 
@@ -262,7 +262,7 @@
         max: {{ dashboard_readings.pm25.gauge_max|tojson }},
         bands: {{ dashboard_readings.pm25.bands|tojson }},
         statusColour: {{ dashboard_readings.pm25.status_colour|tojson }},
-        trend: [8, 12, 10, 18, 15, 20, {{ dashboard_readings.pm25.value|default(0, true)|tojson }}]
+        trend: {{ pms5003_chart_rows | map(attribute='pm25') | list | tojson }}
       },
       {
         gaugeId: 'pm10Gauge',
@@ -272,7 +272,7 @@
         max: {{ dashboard_readings.pm10.gauge_max|tojson }},
         bands: {{ dashboard_readings.pm10.bands|tojson }},
         statusColour: {{ dashboard_readings.pm10.status_colour|tojson }},
-        trend: [15, 20, 18, 24, 28, 25, {{ dashboard_readings.pm10.value|default(0, true)|tojson }}]
+        trend: {{ pms5003_chart_rows | map(attribute='pm10') | list | tojson }}
       },
       {
         gaugeId: 'tempGauge',
@@ -282,7 +282,7 @@
         max: {{ dashboard_readings.temperature.gauge_max|tojson }},
         bands: {{ dashboard_readings.temperature.bands|tojson }},
         statusColour: {{ dashboard_readings.temperature.status_colour|tojson }},
-        trend: [22, 23, 24, 24, 25, 24, {{ dashboard_readings.temperature.value|default(0, true)|tojson }}]
+        trend: {{ scd30_chart_rows | map(attribute='temp') | list | tojson }}
       },
       {
         gaugeId: 'humidityGauge',
@@ -292,7 +292,7 @@
         max: {{ dashboard_readings.humidity.gauge_max|tojson }},
         bands: {{ dashboard_readings.humidity.bands|tojson }},
         statusColour: {{ dashboard_readings.humidity.status_colour|tojson }},
-        trend: [45, 48, 50, 55, 52, 58, {{ dashboard_readings.humidity.value|default(0, true)|tojson }}]
+        trend: {{ scd30_chart_rows | map(attribute='hum') | list | tojson }}
       },
       {
         gaugeId: 'pm1Gauge',
@@ -302,7 +302,7 @@
         max: {{ dashboard_readings.pm1.gauge_max|tojson }},
         bands: {{ dashboard_readings.pm1.bands|tojson }},
         statusColour: {{ dashboard_readings.pm1.status_colour|tojson }},
-        trend: [5, 8, 7, 12, 10, 14, {{ dashboard_readings.pm1.value|default(0, true)|tojson }}]
+        trend: {{ pms5003_chart_rows | map(attribute='pm1') | list | tojson }}
       }
     ];
 

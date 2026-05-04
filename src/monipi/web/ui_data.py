@@ -147,11 +147,11 @@ def get_status_data():
                 except Exception:
                     pass
 
-    scd30_rows = storage.read_last_n_rows(dm.csvpath_samples_scd30, 5)
-    pms_rows = storage.read_last_n_rows(dm.csvpath_samples_pms5003, 5)
+    scd30_rows = storage.read_last_n_rows(dm.csvpath_sample_averages_scd30, 5)
+    pms_rows = storage.read_last_n_rows(dm.csvpath_sample_averages_pms5003, 5)
 
-    latest_scd30_list = [_format_scd30_row(r) for r in scd30_rows if r]
-    latest_pms5003_list = [_format_pms5003_row(r) for r in pms_rows if r]
+    latest_scd30_list = [_format_scd30_average_row(r) for r in scd30_rows if r]
+    latest_pms5003_list = [_format_pms5003_average_row(r) for r in pms_rows if r]
 
     latest_scd30 = latest_scd30_list[-1] if latest_scd30_list else None
     latest_pms5003 = latest_pms5003_list[-1] if latest_pms5003_list else None
@@ -228,7 +228,7 @@ def get_recent_data(timeframe_hours=1, page=1, page_size=10):
     }
 
 
-# New function: get_reading_detail_data
+# Reading details (for own page)
 def get_reading_detail_data(reading_key, timeframe_hours=1, page=1):
     supported_readings = {
         "co2": {
