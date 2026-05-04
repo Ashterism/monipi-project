@@ -1,0 +1,7 @@
+tunnel: monipi
+credentials-file: /home/ash/.cloudflared/e2596219-f81c-4055-82d5-71bec985047b.json
+
+ingress:
+  - hostname: monipi.ashterix.com
+    service: http://localhost:5005
+  - service: http_status:404

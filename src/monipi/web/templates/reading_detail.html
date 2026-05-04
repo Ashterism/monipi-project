@@ -114,7 +114,7 @@
       <label for="timeframe">Timeframe:</label>
       <select id="timeframe" name="timeframe" onchange="this.form.page.value = 1; this.form.submit();">
         <option value="1" {% if timeframe_hours == 1 %}selected{% endif %}>Last hour</option>
-        <option value="8" {% if timeframe_hours == 8 %}selected{% endif %}>Last 8 hours</option>
+        <option value="8" {% if timeframe_hours == 8 or not timeframe_hours %}selected{% endif %}>Last 8 hours</option>
       </select>
 
       <label for="page">Page:</label>
