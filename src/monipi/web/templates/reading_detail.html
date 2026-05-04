@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }} detail</title>
+  <script src="{{ url_for('static', filename='js/echarts.min.js') }}"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #151816;
+      color: #f3f5f0;
+    }
+
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+    }
+
+    .muted {
+      color: #aeb7ad;
+    }
+
+    a {
+      color: #aeb7ad;
+    }
+
+    .panel {
+      padding: 18px;
+      border: 1px solid #3b463b;
+      border-radius: 18px;
+      background: linear-gradient(180deg, #202620, #293129);
+      margin-bottom: 20px;
+    }
+
+    #readingChart {
+      width: 100%;
+      height: 340px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    select,
+    input,
+    button {
+      font: inherit;
+      padding: 6px 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #202620;
+    }
+
+    th,
+    td {
+      border: 1px solid #3b463b;
+      padding: 8px 10px;
+      text-align: left;
+    }
+
+    th {
+      background: #293129;
+    }
+
+    .pagination {
+      margin-top: 14px;
+    }
+
+    .pagination a {
+      margin-right: 14px;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div>
+        <h1>{{ title }}</h1>
+        <p class="muted">{{ source }} reading over time.</p>
+      </div>
+      <nav>
+        <a href="/dashboard">Dashboard</a> · <a href="/data">Raw data</a>
+      </nav>
+    </header>
+
+    <section class="panel">
+      <div id="readingChart"></div>
+    </section>
+
+    <form class="controls" method="get" action="/dashboard/{{ reading_key }}">
+      <label for="timeframe">Timeframe:</label>
+      <select id="timeframe" name="timeframe" onchange="this.form.page.value = 1; this.form.submit();">
+        <option value="1" {% if timeframe_hours == 1 %}selected{% endif %}>Last hour</option>
+        <option value="8" {% if timeframe_hours == 8 %}selected{% endif %}>Last 8 hours</option>
+      </select>
+
+      <label for="page">Page:</label>
+      <input type="number" id="page" name="page" value="{{ page }}" min="1" style="width: 70px;">
+      <button type="submit">Go</button>
+      <span class="muted">Changing timeframe reloads this page with the selected range.</span>
+    </form>
+
+    <section class="panel">
+      <h2>Data</h2>
+      {% if table_rows %}
+        <table>
+          <thead>
+            <tr>
+              <th>Local time</th>
+              <th>{{ table_heading }}</th>
+              <th>UTC time</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in table_rows %}
+              <tr>
+                <td>{{ row.time }}</td>
+                <td>{{ row.value }}</td>
+                <td>{{ row.utc_time }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <div class="pagination">
+          {% if page > 1 %}
+            <a href="/dashboard/{{ reading_key }}?timeframe={{ timeframe_hours }}&page={{ page - 1 }}">← Prev</a>
+          {% endif %}
+          <a href="/dashboard/{{ reading_key }}?timeframe={{ timeframe_hours }}&page={{ page + 1 }}">Next →</a>
+        </div>
+      {% else %}
+        <p class="muted">No data found for this reading.</p>
+      {% endif %}
+    </section>
+  </main>
+
+  <script>
+    const labels = {{ chart_labels|tojson }};
+    const values = {{ chart_values|tojson }};
+
+    const chart = echarts.init(document.getElementById('readingChart'));
+
+    chart.setOption({
+      tooltip: {
+        trigger: 'axis'
+      },
+      grid: {
+        top: 24,
+        right: 28,
+        bottom: 36,
+        left: 56
+      },
+      xAxis: {
+        type: 'category',
+        data: labels,
+        axisLine: { lineStyle: { color: '#aeb7ad' } },
+        axisLabel: { color: '#aeb7ad' }
+      },
+      yAxis: {
+        type: 'value',
+        name: {{ unit|tojson }},
+        scale: true,
+        axisLabel: { color: '#aeb7ad' },
+        splitLine: { lineStyle: { color: '#3b463b' } }
+      },
+      series: [
+        {
+          name: {{ title|tojson }},
+          type: 'line',
+          data: values,
+          smooth: true,
+          symbol: 'none',
+          lineStyle: {
+            width: 3,
+            color: '#35d04f'
+          },
+          areaStyle: {
+            opacity: 0.16,
+            color: '#35d04f'
+          }
+        }
+      ]
+    });
+
+    window.addEventListener('resize', () => {
+      chart.resize();
+    });
+  </script>
+</body>
+</html>

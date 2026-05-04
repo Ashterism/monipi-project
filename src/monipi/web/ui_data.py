@@ -226,3 +226,62 @@ def get_recent_data(timeframe_hours=1, page=1, page_size=10):
         "scd30_chart_rows": scd30_chart_rows,
         "pms5003_chart_rows": pms5003_chart_rows,
     }
+
+
+# New function: get_reading_detail_data
+def get_reading_detail_data(reading_key, timeframe_hours=1, page=1):
+    supported_readings = {
+        "co2": {
+            "title": "CO₂",
+            "unit": "ppm",
+            "source": "SCD30",
+            "row_key": "co2",
+            "table_heading": "CO₂ ppm",
+            "chart_rows_key": "scd30_chart_rows",
+            "table_rows_key": "scd30_average_rows",
+        },
+        "temperature": {
+            "title": "Temperature",
+            "unit": "°C",
+            "source": "SCD30",
+            "row_key": "temp",
+            "table_heading": "Temp °C",
+            "chart_rows_key": "scd30_chart_rows",
+            "table_rows_key": "scd30_average_rows",
+        },
+    }
+
+    if reading_key not in supported_readings:
+        reading_key = "co2"
+
+    reading = supported_readings[reading_key]
+    recent_data = get_recent_data(timeframe_hours=timeframe_hours, page=page)
+
+    chart_rows = recent_data[reading["chart_rows_key"]]
+    table_rows_source = recent_data[reading["table_rows_key"]]
+    row_key = reading["row_key"]
+
+    chart_labels = [row["time"] for row in chart_rows]
+    chart_values = [row[row_key] for row in chart_rows]
+
+    table_rows = [
+        {
+            "time": row["time"],
+            "value": row[row_key],
+            "utc_time": row["utc_time"],
+        }
+        for row in table_rows_source
+    ]
+
+    return {
+        "reading_key": reading_key,
+        "title": reading["title"],
+        "unit": reading["unit"],
+        "source": reading["source"],
+        "table_heading": reading["table_heading"],
+        "chart_labels": chart_labels,
+        "chart_values": chart_values,
+        "table_rows": table_rows,
+        "timeframe_hours": timeframe_hours,
+        "page": page,
+    }
