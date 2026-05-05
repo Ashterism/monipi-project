@@ -1,0 +1,13 @@
+[Unit]
+Description=Cloudflare Tunnel for Monipi
+After=network.target
+
+[Service]
+Type=simple
+User=ash
+ExecStart=/usr/bin/cloudflared tunnel --config /home/ash/.cloudflared/config.yaml run monipi
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
